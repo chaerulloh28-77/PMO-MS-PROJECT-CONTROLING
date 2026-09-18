@@ -30,6 +30,7 @@ interface ProjectListTabProps {
   onClearAllProjects?: () => void;
   onSelectProject: (id: string) => void;
   onSelectTab: (tab: TabType) => void;
+  currentPicName?: string;
 }
 
 export const ProjectListTab: React.FC<ProjectListTabProps> = ({
@@ -40,6 +41,7 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
   onClearAllProjects,
   onSelectProject,
   onSelectTab,
+  currentPicName,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
@@ -301,6 +303,18 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
                     </div>
                   </div>
 
+                  {/* Creator and Modifier Audit Trail */}
+                  <div className="mt-2.5 px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
+                    <span className="truncate">
+                      Diinput: <strong className="text-slate-700">{p.createdBy?.name || 'Tim PMO'}</strong>
+                    </span>
+                    {p.lastModifiedBy && (
+                      <span className="text-blue-600 font-medium truncate pl-1">
+                        Edit: <strong>{p.lastModifiedBy.name}</strong>
+                      </span>
+                    )}
+                  </div>
+
                   {/* Kelengkapan Bar */}
                   <div className="mt-3">
                     <div className="flex items-center justify-between text-[10px] font-semibold mb-1">
@@ -400,10 +414,22 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
                         >
                           {p.name}
                         </button>
-                        <div className="flex items-center space-x-2 text-[11px] text-slate-400">
+                        <div className="flex flex-wrap items-center gap-x-2 text-[10px] text-slate-400">
                           <span className="font-mono font-semibold text-slate-500">{p.id}</span>
                           <span>•</span>
                           <span>FO: {foMetrics.formattedMeters}m</span>
+                          <span>•</span>
+                          <span>
+                            Input: <strong className="text-slate-700 font-semibold">{p.createdBy?.name || 'Tim PMO'}</strong>
+                          </span>
+                          {p.lastModifiedBy && (
+                            <>
+                              <span>•</span>
+                              <span className="text-blue-600 font-semibold">
+                                Edit: {p.lastModifiedBy.name}
+                              </span>
+                            </>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -524,6 +550,7 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
         project={editingProject}
         isOpen={!!editingProject}
         onClose={() => setEditingProject(null)}
+        currentPicName={currentPicName}
         onSave={(updated) => {
           onUpdateProject(updated);
           setEditingProject(null);

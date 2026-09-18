@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   FileText,
@@ -11,6 +11,7 @@ import {
   ArrowLeft,
   Save,
   MapPin,
+  UserCheck,
 } from 'lucide-react';
 import { ProjectStatus, ProjectArea, PROJECT_AREAS } from '../types';
 
@@ -19,6 +20,7 @@ interface NewProjectModalProps {
   onClose: () => void;
   onCreateProject: (data: {
     name: string;
+    picName: string;
     area: ProjectArea;
     tanggalSuratDinas: string;
     nomorSuratDinas: string;
@@ -26,6 +28,7 @@ interface NewProjectModalProps {
     remarks: string;
   }) => void;
   defaultProjectNumber?: number;
+  currentPicName?: string;
 }
 
 export const NewProjectModal: React.FC<NewProjectModalProps> = ({
@@ -33,10 +36,12 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
   onClose,
   onCreateProject,
   defaultProjectNumber = 1,
+  currentPicName = 'PIC Input',
 }) => {
   const todayStr = new Date().toISOString().slice(0, 10);
 
   const [name, setName] = useState('');
+  const [picName, setPicName] = useState(currentPicName);
   const [area, setArea] = useState<ProjectArea>('Jabo 1');
   const [tanggalSuratDinas, setTanggalSuratDinas] = useState(todayStr);
   const [nomorSuratDinas, setNomorSuratDinas] = useState('');
@@ -44,14 +49,22 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
   const [remarks, setRemarks] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (isOpen) {
+      setPicName(currentPicName || 'PIC Input');
+    }
+  }, [isOpen, currentPicName]);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const finalName = name.trim() || `Project FO Baru ${defaultProjectNumber}`;
+    const finalPic = picName.trim() || 'PIC Input';
 
     onCreateProject({
       name: finalName,
+      picName: finalPic,
       area,
       tanggalSuratDinas: tanggalSuratDinas.trim(),
       nomorSuratDinas: nomorSuratDinas.trim(),
@@ -61,6 +74,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
 
     // Reset
     setName('');
+    setPicName(currentPicName || 'PIC Input');
     setArea('Jabo 1');
     setTanggalSuratDinas(todayStr);
     setNomorSuratDinas('');
@@ -131,6 +145,25 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={`Contoh: Relokasi FO Jalan Sudirman KM 5`}
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 transition shadow-2xs font-medium"
+            />
+          </div>
+
+          {/* PIC Input Name */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+              <span className="flex items-center space-x-1.5">
+                <UserCheck className="w-3.5 h-3.5 text-blue-600" />
+                <span>Nama PIC Input (Penanggung Jawab) <span className="text-rose-500">*</span></span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-normal">Wajib Diisi</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={picName}
+              onChange={(e) => setPicName(e.target.value)}
+              placeholder="Ketik nama PIC (contoh: Chaerulloh / Budi / Siti)"
               className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 transition shadow-2xs font-medium"
             />
           </div>

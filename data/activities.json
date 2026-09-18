@@ -1,0 +1,15 @@
+[
+  {
+    "id": "act-1789714094642-78g4",
+    "timestamp": "2026-09-18T06:48:14.642Z",
+    "user": {
+      "id": "user-pic-1",
+      "name": "PIC Input",
+      "role": "PIC Lapangan / PMO",
+      "color": "#2563eb"
+    },
+    "type": "open_link",
+    "title": "Membuka Link Dashboard",
+    "description": "PIC Input (PIC Lapangan / PMO) sedang online & membuka aplikasi"
+  }
+]

@@ -13,12 +13,14 @@ import {
   MapPin,
 } from 'lucide-react';
 import { Project, ProjectStatus, ProjectArea, PROJECT_AREAS } from '../types';
+import { UserCheck } from 'lucide-react';
 
 interface EditProjectModalProps {
   project: Project | null;
   isOpen: boolean;
   onClose: () => void;
   onSave: (updated: Project) => void;
+  currentPicName?: string;
 }
 
 export const EditProjectModal: React.FC<EditProjectModalProps> = ({
@@ -26,8 +28,10 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
   isOpen,
   onClose,
   onSave,
+  currentPicName = '',
 }) => {
   const [name, setName] = useState('');
+  const [editorPicName, setEditorPicName] = useState(currentPicName);
   const [area, setArea] = useState<ProjectArea>('Jabo 1');
   const [tanggalSuratDinas, setTanggalSuratDinas] = useState('');
   const [nomorSuratDinas, setNomorSuratDinas] = useState('');
@@ -38,6 +42,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
   useEffect(() => {
     if (project) {
       setName(project.name || '');
+      setEditorPicName(currentPicName || '');
       setArea(project.area || 'Jabo 1');
       setTanggalSuratDinas(project.tanggalSuratDinas || '');
       setNomorSuratDinas(project.nomorSuratDinas || '');
@@ -45,7 +50,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
       setRemarks(project.remarks || '');
       setIsSavedRecently(false);
     }
-  }, [project, isOpen]);
+  }, [project, isOpen, currentPicName]);
 
   if (!isOpen || !project) return null;
 
@@ -63,6 +68,14 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
       remarks: remarks.trim(),
       updatedAt: new Date().toISOString().slice(0, 10),
     };
+
+    if (editorPicName.trim()) {
+      updated.lastModifiedBy = {
+        name: editorPicName.trim(),
+        at: new Date().toISOString(),
+        fieldChanged: 'Detail project',
+      };
+    }
 
     onSave(updated);
     setIsSavedRecently(true);
@@ -115,6 +128,25 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
           </button>
         </div>
 
+        {/* Audit Info Bar */}
+        {(project.createdBy || project.lastModifiedBy) && (
+          <div className="px-6 py-2.5 bg-slate-50 border-b border-slate-100 flex flex-wrap items-center justify-between text-[11px] text-slate-500 gap-2">
+            {project.createdBy && (
+              <span className="flex items-center space-x-1">
+                <span className="text-slate-400">Dibuat oleh:</span>
+                <strong className="text-slate-700">{project.createdBy.name}</strong>
+                {project.createdBy.role && <span className="text-slate-400">({project.createdBy.role})</span>}
+              </span>
+            )}
+            {project.lastModifiedBy && (
+              <span className="flex items-center space-x-1">
+                <span className="text-slate-400">Terakhir diedit:</span>
+                <strong className="text-blue-600">{project.lastModifiedBy.name}</strong>
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Project Name */}
@@ -128,6 +160,24 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nama project relokasi fiber optic..."
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 transition shadow-2xs font-medium"
+            />
+          </div>
+
+          {/* PIC Editor Input */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+              <span className="flex items-center space-x-1.5">
+                <UserCheck className="w-3.5 h-3.5 text-blue-600" />
+                <span>Nama PIC Pengedit (Penanggung Jawab Perubahan)</span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-normal">Input Manual</span>
+            </label>
+            <input
+              type="text"
+              value={editorPicName}
+              onChange={(e) => setEditorPicName(e.target.value)}
+              placeholder="Nama PIC yang melakukan perubahan data..."
               className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 transition shadow-2xs font-medium"
             />
           </div>

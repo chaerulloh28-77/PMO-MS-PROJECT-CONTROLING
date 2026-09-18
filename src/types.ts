@@ -73,6 +73,24 @@ export type ProjectArea = 'Jabo 1' | 'Jabo 2' | 'Jabo 3';
 
 export const PROJECT_AREAS: ProjectArea[] = ['Jabo 1', 'Jabo 2', 'Jabo 3'];
 
+export interface AuditUser {
+  id: string;
+  name: string;
+  role: string;
+  color: string;
+}
+
+export interface ActivityLog {
+  id: string;
+  timestamp: string;
+  user: AuditUser;
+  type: 'open_link' | 'create_project' | 'update_project' | 'delete_project' | 'clear_all' | 'view_project';
+  title: string;
+  description: string;
+  projectId?: string;
+  projectName?: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -85,6 +103,26 @@ export interface Project {
   pmo: PmoData;
   createdAt?: string;
   updatedAt?: string;
+  createdBy?: {
+    id?: string;
+    name: string;
+    role?: string;
+    color?: string;
+    at: string;
+  };
+  lastModifiedBy?: {
+    id?: string;
+    name: string;
+    role?: string;
+    color?: string;
+    at: string;
+    fieldChanged?: string;
+  };
+  viewCount?: number;
+  lastViewedBy?: {
+    name: string;
+    at: string;
+  };
 }
 
-export type TabType = 'overview' | 'projectList' | 'construction' | 'pipeline' | 'pmo';
+export type TabType = 'overview' | 'projectList' | 'construction' | 'pipeline' | 'pmo' | 'activities';

@@ -1,23 +1,69 @@
-import React from 'react';
-import { Download, PlusCircle, CheckCircle2, HardHat, FileSpreadsheet, Sparkles } from 'lucide-react';
-import { Project } from '../types';
+import React, { useState, useEffect } from 'react';
+import {
+  Download,
+  PlusCircle,
+  HardHat,
+  FileSpreadsheet,
+  Users,
+  User,
+  History,
+  Wifi,
+  WifiOff,
+  UserCheck,
+  Check,
+  Edit2,
+  Lock,
+} from 'lucide-react';
+import { Project, AuditUser } from '../types';
 
 interface NavbarProps {
   projects: Project[];
+  currentUser?: AuditUser;
+  onlineUsers?: AuditUser[];
+  isConnected?: boolean;
   onAddNewProject: () => void;
   onExportExcel: () => void;
+  onOpenProfile?: () => void;
+  onUpdatePicName?: (name: string) => void;
+  onViewActivities?: () => void;
+  onLockApp?: () => void;
   isSaving?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   projects,
+  currentUser,
+  onlineUsers = [],
+  isConnected = true,
   onAddNewProject,
   onExportExcel,
+  onOpenProfile,
+  onUpdatePicName,
+  onViewActivities,
+  onLockApp,
   isSaving = false,
 }) => {
+  const [picInput, setPicInput] = useState<string>('');
+  const [isSavedFlash, setIsSavedFlash] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (currentUser?.name) {
+      setPicInput(currentUser.name);
+    }
+  }, [currentUser?.name]);
+
+  const handleSavePic = () => {
+    const trimmed = picInput.trim();
+    if (trimmed && onUpdatePicName && trimmed !== currentUser?.name) {
+      onUpdatePicName(trimmed);
+      setIsSavedFlash(true);
+      setTimeout(() => setIsSavedFlash(false), 2000);
+    }
+  };
+
   return (
     <header className="bg-slate-950/95 backdrop-blur-md text-white shadow-md sticky top-0 z-40 border-b border-slate-800">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand & Identity */}
           <div className="flex items-center space-x-3 group cursor-pointer transition-transform duration-200 hover:translate-x-0.5">
@@ -39,25 +85,118 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
 
-          {/* Right Action Buttons */}
-          <div className="flex items-center space-x-2.5">
-            {/* Auto-save status */}
-            <div className="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800/90 border border-slate-800 hover:border-slate-700 text-xs text-slate-300 shadow-2xs transition-all duration-200">
-              <CheckCircle2
-                className={`w-3.5 h-3.5 ${
-                  isSaving ? 'text-amber-400 animate-pulse' : 'text-emerald-400'
-                }`}
-              />
-              <span className="font-medium">{isSaving ? 'Menyimpan...' : 'Auto-save Aktif'}</span>
-              <span className="text-slate-600">•</span>
-              <span className="text-slate-400 font-mono font-semibold">{projects.length} Project</span>
+          {/* Right Action Buttons, Manual PIC Input & Presence */}
+          <div className="flex items-center space-x-2">
+            {/* Direct Manual PIC Input Box */}
+            <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-700/80 shadow-2xs hover:border-blue-500/60 transition group">
+              <button
+                type="button"
+                onClick={onOpenProfile}
+                className="w-6 h-6 rounded-lg flex items-center justify-center text-white font-black text-xs shadow-xs transition hover:opacity-85 cursor-pointer shrink-0"
+                style={{ backgroundColor: currentUser?.color || '#2563eb' }}
+                title="Klik untuk memilih warna avatar atau jabatan"
+              >
+                {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : 'P'}
+              </button>
+              <div className="flex flex-col">
+                <div className="flex items-center space-x-1">
+                  <span className="text-[9px] font-bold text-amber-400 uppercase tracking-wider">
+                    PIC:
+                  </span>
+                  <input
+                    type="text"
+                    value={picInput}
+                    onChange={(e) => setPicInput(e.target.value)}
+                    onBlur={handleSavePic}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.currentTarget.blur();
+                        handleSavePic();
+                      }
+                    }}
+                    placeholder="Nama PIC..."
+                    className="bg-transparent text-white font-bold text-xs w-24 sm:w-36 focus:outline-none focus:text-blue-300 transition placeholder:text-slate-500"
+                    title="Ketik nama PIC manual di sini (tekan Enter untuk menyimpan)"
+                  />
+                  {isSavedFlash ? (
+                    <span className="text-[10px] text-emerald-400 font-bold flex items-center animate-in fade-in">
+                      <Check className="w-3 h-3" />
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleSavePic}
+                      className="text-slate-500 hover:text-blue-400 transition cursor-pointer p-0.5"
+                      title="Simpan nama PIC"
+                    >
+                      <Edit2 className="w-3 h-3" />
+                    </button>
+                  )}
+                  {onLockApp && (
+                    <button
+                      type="button"
+                      onClick={onLockApp}
+                      className="text-slate-500 hover:text-rose-400 transition cursor-pointer p-0.5 ml-1 border-l border-slate-800 pl-1"
+                      title="Kunci Aplikasi / Ganti PIC"
+                    >
+                      <Lock className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span className="text-[9px] font-medium text-slate-400 tracking-tight truncate max-w-[120px] sm:max-w-[160px]">
+                    {currentUser?.role || 'Project Manager'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Live Online Users Pill */}
+            {onlineUsers.length > 0 && (
+              <button
+                type="button"
+                onClick={onViewActivities}
+                className="hidden lg:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-xs text-slate-300 transition-all cursor-pointer shadow-2xs hover:shadow-xs group"
+                title="Klik untuk melihat riwayat aktivitas & siapa saja yang online"
+              >
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span className="font-bold text-white group-hover:text-emerald-300 transition-colors font-mono">
+                  {onlineUsers.length} Online
+                </span>
+                <span className="text-slate-500 text-[10px]">membuka link</span>
+              </button>
+            )}
+
+            {/* Connection Status indicator */}
+            <div
+              className={`hidden md:flex items-center space-x-1 px-2.5 py-1.5 rounded-xl border text-[11px] font-mono shadow-2xs ${
+                isConnected
+                  ? 'bg-slate-900/90 border-slate-800 text-emerald-400'
+                  : 'bg-rose-950/60 border-rose-800 text-rose-300'
+              }`}
+              title={isConnected ? 'Terhubung real-time ke server' : 'Menghubungkan ulang...'}
+            >
+              {isConnected ? (
+                <>
+                  <Wifi className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="hidden xl:inline text-slate-400 font-sans">Live Sync</span>
+                </>
+              ) : (
+                <>
+                  <WifiOff className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
+                  <span className="text-rose-300 font-sans">Reconnecting</span>
+                </>
+              )}
             </div>
 
             {/* Quick Add Project */}
             <button
               type="button"
               onClick={onAddNewProject}
-              className="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white shadow-xs hover:shadow-md hover:shadow-blue-500/25 transition-all duration-200 cursor-pointer active:scale-95 hover:-translate-y-0.5"
+              className="inline-flex items-center space-x-1.5 px-3 py-2 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white shadow-xs hover:shadow-md hover:shadow-blue-500/25 transition-all duration-200 cursor-pointer active:scale-95 hover:-translate-y-0.5"
               title="Tambah Project Baru"
             >
               <PlusCircle className="w-4 h-4 transition-transform group-hover:rotate-90" />
@@ -68,11 +207,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               type="button"
               onClick={onExportExcel}
-              className="inline-flex items-center space-x-1.5 px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white shadow-xs hover:shadow-md hover:shadow-emerald-500/25 transition-all duration-200 cursor-pointer active:scale-95 hover:-translate-y-0.5"
+              className="inline-flex items-center space-x-1.5 px-3 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white shadow-xs hover:shadow-md hover:shadow-emerald-500/25 transition-all duration-200 cursor-pointer active:scale-95 hover:-translate-y-0.5"
               title="Download Excel Workbook"
             >
               <FileSpreadsheet className="w-4 h-4" />
-              <span>Export Excel</span>
+              <span className="hidden sm:inline">Export Excel</span>
               <Download className="w-3.5 h-3.5 opacity-80" />
             </button>
           </div>
