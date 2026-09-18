@@ -151,25 +151,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </div>
 
-            {/* Live Online Users Pill */}
-            {onlineUsers.length > 0 && (
-              <button
-                type="button"
-                onClick={onViewActivities}
-                className="hidden lg:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-xs text-slate-300 transition-all cursor-pointer shadow-2xs hover:shadow-xs group"
-                title="Klik untuk melihat riwayat aktivitas & siapa saja yang online"
-              >
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                </span>
-                <span className="font-bold text-white group-hover:text-emerald-300 transition-colors font-mono">
-                  {onlineUsers.length} Online
-                </span>
-                <span className="text-slate-500 text-[10px]">membuka link</span>
-              </button>
-            )}
-
             {/* Connection Status indicator */}
             <div
               className={`hidden md:flex items-center space-x-1 px-2.5 py-1.5 rounded-xl border text-[11px] font-mono shadow-2xs ${

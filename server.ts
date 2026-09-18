@@ -35,13 +35,19 @@ function loadProjects(): any[] {
   return [];
 }
 
-function saveProjects(projects: any[]) {
+let saveProjectsTimer: NodeJS.Timeout | null = null;
+function saveProjects(projectsToSave: any[]) {
   ensureDataDir();
-  try {
-    fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projects, null, 2), 'utf-8');
-  } catch (err) {
-    console.error('Error saving projects.json:', err);
-  }
+  if (saveProjectsTimer) clearTimeout(saveProjectsTimer);
+  saveProjectsTimer = setTimeout(() => {
+    try {
+      fs.writeFile(PROJECTS_FILE, JSON.stringify(projectsToSave, null, 2), 'utf-8', (err) => {
+        if (err) console.error('Error saving projects.json:', err);
+      });
+    } catch (err) {
+      console.error('Error in saveProjects timer:', err);
+    }
+  }, 100);
 }
 
 function cleanUserName(name?: string): string {
@@ -74,13 +80,19 @@ function loadActivities(): any[] {
   return [];
 }
 
-function saveActivities(activities: any[]) {
+let saveActivitiesTimer: NodeJS.Timeout | null = null;
+function saveActivities(activitiesToSave: any[]) {
   ensureDataDir();
-  try {
-    fs.writeFileSync(ACTIVITIES_FILE, JSON.stringify(activities.slice(0, 100), null, 2), 'utf-8');
-  } catch (err) {
-    console.error('Error saving activities.json:', err);
-  }
+  if (saveActivitiesTimer) clearTimeout(saveActivitiesTimer);
+  saveActivitiesTimer = setTimeout(() => {
+    try {
+      fs.writeFile(ACTIVITIES_FILE, JSON.stringify(activitiesToSave.slice(0, 100), null, 2), 'utf-8', (err) => {
+        if (err) console.error('Error saving activities.json:', err);
+      });
+    } catch (err) {
+      console.error('Error in saveActivities timer:', err);
+    }
+  }, 100);
 }
 
 // In-memory state
@@ -271,6 +283,13 @@ app.get('/api/activities', (_req, res) => {
   res.json(activities);
 });
 
+app.delete('/api/activities', (_req, res) => {
+  activities = [];
+  saveActivities(activities);
+  broadcast({ type: 'activities:cleared' });
+  res.json({ success: true, message: 'All activities history cleared' });
+});
+
 app.get('/api/presence', (_req, res) => {
   res.json(getOnlineUsers());
 });
@@ -348,11 +367,14 @@ wss.on('connection', (ws: WebSocket) => {
           };
           recordActivity(act);
 
-          broadcast({
-            type: 'project:created',
-            project: newProject,
-            user: msg.user,
-          });
+          broadcast(
+            {
+              type: 'project:created',
+              project: newProject,
+              user: msg.user,
+            },
+            ws
+          );
           break;
         }
 
@@ -378,11 +400,14 @@ wss.on('connection', (ws: WebSocket) => {
           };
           recordActivity(act);
 
-          broadcast({
-            type: 'project:updated',
-            project: updated,
-            user: msg.user,
-          });
+          broadcast(
+            {
+              type: 'project:updated',
+              project: updated,
+              user: msg.user,
+            },
+            ws
+          );
           break;
         }
 
@@ -403,11 +428,14 @@ wss.on('connection', (ws: WebSocket) => {
           };
           recordActivity(act);
 
-          broadcast({
-            type: 'project:deleted',
-            projectId,
-            user,
-          });
+          broadcast(
+            {
+              type: 'project:deleted',
+              projectId,
+              user,
+            },
+            ws
+          );
           break;
         }
 
@@ -426,10 +454,25 @@ wss.on('connection', (ws: WebSocket) => {
           };
           recordActivity(act);
 
-          broadcast({
-            type: 'project:cleared',
-            user,
-          });
+          broadcast(
+            {
+              type: 'project:cleared',
+              user,
+            },
+            ws
+          );
+          break;
+        }
+
+        case 'activities:clear': {
+          activities = [];
+          saveActivities(activities);
+          broadcast(
+            {
+              type: 'activities:cleared',
+            },
+            ws
+          );
           break;
         }
 

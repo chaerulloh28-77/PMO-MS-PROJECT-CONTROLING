@@ -12,7 +12,6 @@ import {
   PlusCircle,
   Eye,
   Globe,
-  Radio,
 } from 'lucide-react';
 import { ActivityLog, AuditUser, TabType } from '../types';
 
@@ -22,6 +21,7 @@ interface ActivitiesTabProps {
   currentUser: AuditUser;
   onOpenProfile: () => void;
   onSelectProjectTab: (tab: TabType) => void;
+  onClearActivities?: () => void;
 }
 
 export const ActivitiesTab: React.FC<ActivitiesTabProps> = ({
@@ -30,9 +30,36 @@ export const ActivitiesTab: React.FC<ActivitiesTabProps> = ({
   currentUser,
   onOpenProfile,
   onSelectProjectTab,
+  onClearActivities,
 }) => {
   const [filterType, setFilterType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const isPaul =
+    currentUser?.name?.toLowerCase().trim() === 'paul' ||
+    currentUser?.name?.toLowerCase().includes('paul') ||
+    currentUser?.role?.toLowerCase() === 'admin';
+
+  if (!isPaul) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 px-4 text-center max-w-md mx-auto">
+        <div className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 mb-4 shadow-xs">
+          <ShieldCheck className="w-8 h-8" />
+        </div>
+        <h2 className="text-lg font-black text-slate-900">Akses Terbatas</h2>
+        <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+          Halaman ini hanya dapat diakses melalui otorisasi sistem.
+        </p>
+        <button
+          type="button"
+          onClick={() => onSelectProjectTab('overview')}
+          className="mt-6 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition cursor-pointer"
+        >
+          Kembali ke Overview
+        </button>
+      </div>
+    );
+  }
 
   const formatTimestamp = (ts: string) => {
     try {
@@ -133,73 +160,58 @@ export const ActivitiesTab: React.FC<ActivitiesTabProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Top Banner: Real-time Presence & Active Users */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-950 text-white rounded-2xl p-5 shadow-sm border border-slate-800">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center space-x-2">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-              </span>
-              <h2 className="text-base font-extrabold text-white">
-                Live Kolaborator & Monitoring Real-Time
-              </h2>
-              <span className="text-[10px] font-mono bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-400/30">
-                {onlineUsers.length} Online Sekarang
-              </span>
+      {/* Header Audit & Traffic Log */}
+      <div className="bg-slate-900 text-white rounded-2xl p-5 shadow-xs border border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <div className="flex items-center space-x-2.5">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+              <ShieldCheck className="w-4 h-4" />
             </div>
-            <p className="text-xs text-slate-300">
-              Setiap perubahan data dan pembukaan link oleh siapapun akan tercatat otomatis dan tersinkronisasi langsung ke semua pengguna.
-            </p>
+            <div>
+              <h1 className="text-base font-extrabold text-white tracking-tight">
+                Audit & Monitoring Log Trafik
+              </h1>
+            </div>
           </div>
+        </div>
 
-          {/* Current User Profile Card in Banner */}
-          <div className="flex items-center space-x-3 bg-slate-800/80 p-2.5 rounded-xl border border-slate-700 shadow-2xs">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-xs border border-white/20"
-              style={{ backgroundColor: currentUser.color }}
+        {/* PIC Profile Badge & Clear Button */}
+        <div className="flex items-center space-x-2.5 self-start sm:self-auto">
+          {onClearActivities && (
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm('Hapus seluruh riwayat Audit & Monitoring Log Trafik?')) {
+                  onClearActivities();
+                }
+              }}
+              className="flex items-center space-x-1.5 text-xs font-bold px-3 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded-xl transition cursor-pointer"
+              title="Hapus seluruh history log aktivitas"
             >
-              {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Hapus History</span>
+            </button>
+          )}
+
+          <div className="flex items-center space-x-3 bg-slate-800/90 px-3 py-2 rounded-xl border border-slate-700">
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-xs"
+              style={{ backgroundColor: currentUser.color || '#2563eb' }}
+            >
+              {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'P'}
             </div>
             <div className="text-left">
-              <div className="flex items-center space-x-1.5">
-                <span className="text-xs font-bold text-white">{currentUser.name}</span>
-                <span className="text-[9px] bg-emerald-500/20 text-emerald-300 font-bold px-1.5 py-0.2 rounded">
-                  Anda
-                </span>
-              </div>
-              <span className="text-[10px] text-slate-400 block font-medium">{currentUser.role}</span>
+              <span className="text-xs font-bold text-white block">{currentUser.name}</span>
+              <span className="text-[10px] text-slate-400 block">{currentUser.role}</span>
             </div>
             <button
               type="button"
               onClick={onOpenProfile}
-              className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition cursor-pointer active:scale-95"
+              className="text-[11px] font-bold px-2 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition cursor-pointer"
             >
-              Ubah
+              Profil
             </button>
           </div>
-        </div>
-
-        {/* Online users chips */}
-        <div className="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center gap-2">
-          <span className="text-[11px] font-bold text-slate-400 flex items-center space-x-1">
-            <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-            <span>Sedang Membuka Link:</span>
-          </span>
-          {onlineUsers.map((user) => (
-            <div
-              key={user.id}
-              className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-800/90 border border-slate-700 text-xs font-semibold text-slate-200 shadow-2xs"
-            >
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: user.color || '#10b981' }}
-              />
-              <span className="text-white font-bold">{user.name}</span>
-              <span className="text-slate-400 text-[10px]">({user.role})</span>
-            </div>
-          ))}
         </div>
       </div>
 

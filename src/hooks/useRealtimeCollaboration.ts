@@ -79,16 +79,21 @@ export function useRealtimeCollaboration(
   const socketRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<any>(null);
   const reconnectAttemptsRef = useRef<number>(0);
+  const updateProjectDebounceRef = useRef<Map<string, any>>(new Map());
 
-  // Sync projects to localStorage cache
-  const updateProjectsState = useCallback((updater: Project[] | ((prev: Project[]) => Project[])) => {
-    setProjects((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : updater;
+  // Debounced sync of projects to localStorage cache so main thread is never blocked
+  useEffect(() => {
+    const timer = setTimeout(() => {
       try {
-        localStorage.setItem(LOCAL_PROJECTS_CACHE, JSON.stringify(next));
+        localStorage.setItem(LOCAL_PROJECTS_CACHE, JSON.stringify(projects));
       } catch (_) {}
-      return next;
-    });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [projects]);
+
+  // Clean in-memory projects updater
+  const updateProjectsState = useCallback((updater: Project[] | ((prev: Project[]) => Project[])) => {
+    setProjects(updater);
   }, []);
 
   const saveCurrentUser = useCallback((updated: AuditUser) => {
@@ -193,18 +198,7 @@ export function useRealtimeCollaboration(
                 const act: ActivityLog = data.activity;
                 setActivities((prev) => [act, ...prev.filter((a) => a.id !== act.id)].slice(0, 100));
                 setLastActivity(act);
-
-                if (act.user && act.user.id !== currentUser.id && onNotification) {
-                  if (act.type === 'open_link') {
-                    onNotification(`${act.user.name} membuka link dashboard`, 'info');
-                  } else if (act.type === 'create_project') {
-                    onNotification(`${act.user.name} membuat project baru`, 'success');
-                  } else if (act.type === 'update_project') {
-                    onNotification(`${act.user.name} memperbarui data project`, 'info');
-                  } else if (act.type === 'delete_project') {
-                    onNotification(`${act.user.name} menghapus project`, 'alert');
-                  }
-                }
+                // Keep activity logging completely silent so other PICs cannot see each other accessing the application
                 break;
               }
 
@@ -251,6 +245,11 @@ export function useRealtimeCollaboration(
                       : p
                   )
                 );
+                break;
+              }
+
+              case 'activities:cleared': {
+                setActivities([]);
                 break;
               }
 
@@ -335,6 +334,7 @@ export function useRealtimeCollaboration(
       updateProjectsState((prev) => [enrichedProject, ...prev]);
 
       // WebSocket action
+      let sentViaWs = false;
       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
         try {
           socketRef.current.send(
@@ -344,15 +344,18 @@ export function useRealtimeCollaboration(
               user: currentUser,
             })
           );
+          sentViaWs = true;
         } catch (_) {}
       }
 
-      // REST persistence fallback
-      fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project: enrichedProject, user: currentUser }),
-      }).catch(() => {});
+      // REST persistence fallback only if WS not connected
+      if (!sentViaWs) {
+        fetch('/api/projects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ project: enrichedProject, user: currentUser }),
+        }).catch(() => {});
+      }
     },
     [currentUser, updateProjectsState]
   );
@@ -372,39 +375,62 @@ export function useRealtimeCollaboration(
         updatedAt: new Date().toISOString().slice(0, 10),
       };
 
-      // Optimistic update
+      // 1. Immediate optimistic update (0ms lag, instant 60fps response)
       updateProjectsState((prev) =>
         prev.map((p) => (p.id === enrichedProject.id ? enrichedProject : p))
       );
 
-      // WebSocket action
-      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-        try {
-          socketRef.current.send(
-            JSON.stringify({
-              type: 'project:update',
-              project: enrichedProject,
-              fieldChanged,
-              user: currentUser,
-            })
-          );
-        } catch (_) {}
+      // 2. Debounce remote sync to prevent network congestion during continuous typing / changes
+      const existingTimer = updateProjectDebounceRef.current.get(project.id);
+      if (existingTimer) {
+        clearTimeout(existingTimer);
       }
 
-      // REST persistence fallback
-      fetch(`/api/projects/${enrichedProject.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ project: enrichedProject, user: currentUser, fieldChanged }),
-      }).catch(() => {});
+      const timer = setTimeout(() => {
+        updateProjectDebounceRef.current.delete(project.id);
+
+        let sentViaWs = false;
+        if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+          try {
+            socketRef.current.send(
+              JSON.stringify({
+                type: 'project:update',
+                project: enrichedProject,
+                fieldChanged,
+                user: currentUser,
+              })
+            );
+            sentViaWs = true;
+          } catch (_) {}
+        }
+
+        // REST persistence fallback only if WS not connected
+        if (!sentViaWs) {
+          fetch(`/api/projects/${enrichedProject.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project: enrichedProject, user: currentUser, fieldChanged }),
+          }).catch(() => {});
+        }
+      }, 150);
+
+      updateProjectDebounceRef.current.set(project.id, timer);
     },
     [currentUser, updateProjectsState]
   );
 
   const deleteProject = useCallback(
     (projectId: string, projectName?: string) => {
+      // Clear pending debounce for this project
+      const pending = updateProjectDebounceRef.current.get(projectId);
+      if (pending) {
+        clearTimeout(pending);
+        updateProjectDebounceRef.current.delete(projectId);
+      }
+
       updateProjectsState((prev) => prev.filter((p) => p.id !== projectId));
 
+      let sentViaWs = false;
       if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
         try {
           socketRef.current.send(
@@ -415,22 +441,29 @@ export function useRealtimeCollaboration(
               user: currentUser,
             })
           );
+          sentViaWs = true;
         } catch (_) {}
       }
 
-      // REST persistence fallback
-      fetch(`/api/projects/${projectId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user: currentUser, projectName }),
-      }).catch(() => {});
+      // REST persistence fallback only if WS is not open
+      if (!sentViaWs) {
+        fetch(`/api/projects/${projectId}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user: currentUser, projectName }),
+        }).catch(() => {});
+      }
     },
     [currentUser, updateProjectsState]
   );
 
   const clearAllProjects = useCallback(() => {
+    updateProjectDebounceRef.current.forEach((t: any) => clearTimeout(t));
+    updateProjectDebounceRef.current.clear();
+
     updateProjectsState([]);
 
+    let sentViaWs = false;
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       try {
         socketRef.current.send(
@@ -439,15 +472,18 @@ export function useRealtimeCollaboration(
             user: currentUser,
           })
         );
+        sentViaWs = true;
       } catch (_) {}
     }
 
-    // REST persistence fallback
-    fetch('/api/projects', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user: currentUser }),
-    }).catch(() => {});
+    // REST persistence fallback only if WS is not open
+    if (!sentViaWs) {
+      fetch('/api/projects', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user: currentUser }),
+      }).catch(() => {});
+    }
   }, [currentUser, updateProjectsState]);
 
   const viewProject = useCallback(
@@ -467,6 +503,26 @@ export function useRealtimeCollaboration(
     [currentUser]
   );
 
+  const clearActivities = useCallback(() => {
+    setActivities([]);
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      try {
+        socketRef.current.send(
+          JSON.stringify({
+            type: 'activities:clear',
+            user: currentUser,
+          })
+        );
+      } catch (_) {}
+    }
+
+    fetch('/api/activities', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: currentUser }),
+    }).catch(() => {});
+  }, [currentUser]);
+
   const setPicName = useCallback(
     (newName: string) => {
       const updated: AuditUser = {
@@ -484,6 +540,7 @@ export function useRealtimeCollaboration(
     setPicName,
     projects,
     activities,
+    clearActivities,
     onlineUsers,
     isConnected,
     lastActivity,

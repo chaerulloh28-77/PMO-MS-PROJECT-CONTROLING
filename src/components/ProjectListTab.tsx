@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Plus,
   Trash2,
@@ -51,29 +51,32 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
 
-  const filterCounts = {
+  const filterCounts = useMemo(() => ({
     ALL: projects.length,
     'In Progress': projects.filter((p) => p.status === 'In Progress').length,
     Done: projects.filter((p) => p.status === 'Done').length,
     'Not Yet': projects.filter((p) => p.status === 'Not Yet').length,
     'Pending/Cancel/Hold': projects.filter((p) => p.status === 'Pending/Cancel/Hold').length,
-  };
+  }), [projects]);
 
-  const filteredProjects = projects.filter((p) => {
-    const term = searchTerm.toLowerCase();
-    const matchesSearch =
-      p.name.toLowerCase().includes(term) ||
-      p.id.toLowerCase().includes(term) ||
-      (p.remarks && p.remarks.toLowerCase().includes(term)) ||
-      (p.area && p.area.toLowerCase().includes(term)) ||
-      (p.tanggalSuratDinas && p.tanggalSuratDinas.toLowerCase().includes(term)) ||
-      (p.nomorSuratDinas && p.nomorSuratDinas.toLowerCase().includes(term));
+  const filteredProjects = useMemo(() => {
+    const term = searchTerm.toLowerCase().trim();
+    return projects.filter((p) => {
+      const matchesSearch =
+        !term ||
+        p.name.toLowerCase().includes(term) ||
+        p.id.toLowerCase().includes(term) ||
+        (p.remarks && p.remarks.toLowerCase().includes(term)) ||
+        (p.area && p.area.toLowerCase().includes(term)) ||
+        (p.tanggalSuratDinas && p.tanggalSuratDinas.toLowerCase().includes(term)) ||
+        (p.nomorSuratDinas && p.nomorSuratDinas.toLowerCase().includes(term));
 
-    const matchesStatus = statusFilter === 'ALL' || p.status === statusFilter;
-    const matchesArea = areaFilter === 'ALL' || (p.area || 'Jabo 1') === areaFilter;
+      const matchesStatus = statusFilter === 'ALL' || p.status === statusFilter;
+      const matchesArea = areaFilter === 'ALL' || (p.area || 'Jabo 1') === areaFilter;
 
-    return matchesSearch && matchesStatus && matchesArea;
-  });
+      return matchesSearch && matchesStatus && matchesArea;
+    });
+  }, [projects, searchTerm, statusFilter, areaFilter]);
 
   const confirmDelete = (id: string) => {
     onDeleteProject(id);

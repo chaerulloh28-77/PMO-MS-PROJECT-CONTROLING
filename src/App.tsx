@@ -32,6 +32,7 @@ export default function App() {
     setPicName,
     projects,
     activities,
+    clearActivities,
     onlineUsers,
     isConnected,
     createProject,
@@ -43,32 +44,26 @@ export default function App() {
     avatarColors,
   } = useRealtimeCollaboration(showToast);
 
-  // App is locked by default whenever opened or reopened
-  const [isAppLocked, setIsAppLocked] = useState<boolean>(true);
+  // Initialize lock state based on active session storage
+  const [isAppLocked, setIsAppLocked] = useState<boolean>(() => {
+    try {
+      const savedAuth = sessionStorage.getItem('pmo_app_pic_auth_v1');
+      return !savedAuth;
+    } catch (_) {
+      return true;
+    }
+  });
 
-  // Automatically lock whenever application runs in the background (tab switch, minimize, backgrounded) or closes
+  // Automatically secure session on page unload/close
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        try {
-          sessionStorage.removeItem('pmo_app_pic_auth_v1');
-        } catch (_) {}
-        setIsAppLocked(true);
-      }
-    };
-
     const handlePageHide = () => {
       try {
         sessionStorage.removeItem('pmo_app_pic_auth_v1');
       } catch (_) {}
-      setIsAppLocked(true);
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('pagehide', handlePageHide);
-
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('pagehide', handlePageHide);
     };
   }, []);
@@ -224,6 +219,7 @@ export default function App() {
             projects={projects}
             activitiesCount={activities.length}
             onlineUsersCount={onlineUsers.length}
+            currentUser={currentUser}
           />
 
           {/* Tab Content Box */}
@@ -288,6 +284,7 @@ export default function App() {
                 currentUser={currentUser}
                 onOpenProfile={() => setIsProfileModalOpen(true)}
                 onSelectProjectTab={setActiveTab}
+                onClearActivities={clearActivities}
               />
             )}
           </main>

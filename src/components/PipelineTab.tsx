@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Clock,
   CheckCircle2,
@@ -71,20 +71,22 @@ export const PipelineTab: React.FC<PipelineTabProps> = ({
     });
   };
 
-  const filteredProjects = projects.filter((p) => {
-    const matchesArea = areaFilter === 'ALL' || (p.area || 'Jabo 1') === areaFilter;
-    if (!matchesArea) return false;
+  const filteredProjects = useMemo(() => {
+    return projects.filter((p) => {
+      const matchesArea = areaFilter === 'ALL' || (p.area || 'Jabo 1') === areaFilter;
+      if (!matchesArea) return false;
 
-    if (!searchTerm.trim()) return true;
-    const term = searchTerm.toLowerCase();
-    return (
-      p.name.toLowerCase().includes(term) ||
-      p.id.toLowerCase().includes(term) ||
-      (p.area && p.area.toLowerCase().includes(term)) ||
-      (p.nomorSuratDinas && p.nomorSuratDinas.toLowerCase().includes(term)) ||
-      (p.remarks && p.remarks.toLowerCase().includes(term))
-    );
-  });
+      if (!searchTerm.trim()) return true;
+      const term = searchTerm.toLowerCase();
+      return (
+        p.name.toLowerCase().includes(term) ||
+        p.id.toLowerCase().includes(term) ||
+        (p.area && p.area.toLowerCase().includes(term)) ||
+        (p.nomorSuratDinas && p.nomorSuratDinas.toLowerCase().includes(term)) ||
+        (p.remarks && p.remarks.toLowerCase().includes(term))
+      );
+    });
+  }, [projects, areaFilter, searchTerm]);
 
   return (
     <div className="space-y-6">

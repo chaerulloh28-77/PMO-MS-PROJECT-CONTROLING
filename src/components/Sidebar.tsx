@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   BarChart3,
   ClipboardList,
@@ -12,7 +12,7 @@ import {
   History,
   Users,
 } from 'lucide-react';
-import { TabType, Project } from '../types';
+import { TabType, Project, AuditUser } from '../types';
 import { calculateProjectCompletion } from '../utils/projectMetrics';
 
 interface SidebarProps {
@@ -21,6 +21,7 @@ interface SidebarProps {
   projects: Project[];
   activitiesCount?: number;
   onlineUsersCount?: number;
+  currentUser?: AuditUser;
 }
 
 interface Ripple {
@@ -34,23 +35,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectTab,
   projects,
   activitiesCount = 0,
-  onlineUsersCount = 1,
+  currentUser,
 }) => {
   const [ripples, setRipples] = useState<Record<string, Ripple[]>>({});
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
 
-  const inProgressCount = projects.filter((p) => p.status === 'In Progress').length;
-  const pendingCount = projects.filter((p) => p.status === 'Pending/Cancel/Hold').length;
-  const doneCount = projects.filter((p) => p.status === 'Done').length;
+  const inProgressCount = useMemo(() => projects.filter((p) => p.status === 'In Progress').length, [projects]);
+  const pendingCount = useMemo(() => projects.filter((p) => p.status === 'Pending/Cancel/Hold').length, [projects]);
+  const doneCount = useMemo(() => projects.filter((p) => p.status === 'Done').length, [projects]);
 
   // Compute average completeness score across all projects
-  const avgCompleteness =
-    projects.length > 0
+  const avgCompleteness = useMemo(() => {
+    return projects.length > 0
       ? Math.round(
           projects.reduce((acc, p) => acc + calculateProjectCompletion(p).score, 0) /
             projects.length
         )
       : 0;
+  }, [projects]);
 
   const handleMenuClick = (e: React.MouseEvent<HTMLButtonElement>, id: TabType) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -137,20 +139,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
       color: 'text-emerald-600',
       activeBg: 'from-emerald-600 to-teal-600',
     },
-    {
-      id: 'activities',
-      label: 'Audit & Log Aktivitas',
-      description: 'Riwayat input, edit & buka link',
-      icon: <History className="w-5 h-5" />,
-      color: 'text-rose-600',
-      activeBg: 'from-rose-600 to-pink-600',
-      badge: (
-        <span className="flex items-center space-x-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span>{onlineUsersCount} online</span>
-        </span>
-      ),
-    },
+    ...((() => {
+      const isPaul =
+        currentUser?.name?.toLowerCase().trim() === 'paul' ||
+        currentUser?.name?.toLowerCase().includes('paul') ||
+        currentUser?.role?.toLowerCase() === 'admin';
+      if (!isPaul) return [];
+      return [
+        {
+          id: 'activities' as TabType,
+          label: 'Audit & Log Trafik',
+          description: 'Riwayat data & pembukaan link',
+          icon: <History className="w-5 h-5" />,
+          color: 'text-rose-600',
+          activeBg: 'from-rose-600 to-pink-600',
+        },
+      ];
+    })()),
   ];
 
   return (
