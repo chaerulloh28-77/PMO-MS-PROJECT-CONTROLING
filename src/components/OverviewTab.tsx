@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ResponsiveContainer,
   PieChart,
@@ -26,6 +26,8 @@ import {
   HardHat,
   ChevronRight,
   ShieldCheck,
+  List,
+  LayoutGrid,
 } from 'lucide-react';
 import { Project, TabType } from '../types';
 import { STATUS_COLORS, AREA_COLORS } from '../data/initialProjects';
@@ -44,6 +46,21 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
   onSelectProject,
   onAddNewProject,
 }) => {
+  const [overviewViewMode, setOverviewViewMode] = useState<'table' | 'cards'>(() => {
+    try {
+      const saved = localStorage.getItem('pmo_overview_view_mode');
+      if (saved === 'cards' || saved === 'table') return saved;
+    } catch (_) {}
+    return 'table';
+  });
+
+  const handleSetOverviewViewMode = (mode: 'table' | 'cards') => {
+    setOverviewViewMode(mode);
+    try {
+      localStorage.setItem('pmo_overview_view_mode', mode);
+    } catch (_) {}
+  };
+
   // Status breakdown
   const statusCounts = {
     Done: projects.filter((p) => p.status === 'Done').length,
@@ -421,27 +438,57 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         </div>
       </div>
 
-      {/* Quick Access Project Table */}
+      {/* Quick Access Project Section with Tabel Compact and Card Grid Options */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
         <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h3 className="text-sm font-bold text-slate-900">Daftar Project & Kelengkapan Data</h3>
             <p className="text-xs text-slate-500">Klik tombol cepat untuk melengkapi progres konstruksi atau laporan PMO</p>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* View Mode Switcher: Tabel Compact vs Card Grid */}
+            <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 shadow-2xs">
+              <button
+                type="button"
+                onClick={() => handleSetOverviewViewMode('table')}
+                className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  overviewViewMode === 'table'
+                    ? 'bg-white text-blue-700 shadow-xs ring-1 ring-slate-200'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                }`}
+                title="Tampilan Tabel Compact"
+              >
+                <List className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Tabel Compact</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSetOverviewViewMode('cards')}
+                className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                  overviewViewMode === 'cards'
+                    ? 'bg-white text-blue-700 shadow-xs ring-1 ring-slate-200'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                }`}
+                title="Tampilan Card Grid"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Card Grid</span>
+              </button>
+            </div>
+
             {onAddNewProject && (
               <button
                 type="button"
                 onClick={onAddNewProject}
-                className="text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-lg transition cursor-pointer"
+                className="text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-xl transition cursor-pointer active:scale-95"
               >
-                + Tambah Project
+                + Project Baru
               </button>
             )}
             <button
               type="button"
               onClick={() => onSelectTab('projectList')}
-              className="text-xs font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-200 transition cursor-pointer"
+              className="text-xs font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl border border-slate-200 transition cursor-pointer"
             >
               Lihat Semua ({projects.length})
             </button>
@@ -468,16 +515,104 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
               </button>
             )}
           </div>
+        ) : overviewViewMode === 'cards' ? (
+          /* Symmetrical Card Grid View in Overview */
+          <div className="p-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3.5">
+            {projects.slice(0, 6).map((p) => {
+              const completion = calculateProjectCompletion(p);
+              const foMetrics = calculatePullingFOMetrics(p.construction?.pullingFO);
+
+              return (
+                <div
+                  key={p.id}
+                  className="bg-slate-50/70 hover:bg-white rounded-2xl border border-slate-200 p-3.5 shadow-2xs hover:shadow-md transition flex flex-col justify-between space-y-3"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="space-y-0.5 truncate">
+                        <div className="flex items-center space-x-1.5">
+                          {p.area && (
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${AREA_COLORS[p.area]?.badge || 'bg-slate-100 text-slate-700'}`}>
+                              {p.area}
+                            </span>
+                          )}
+                          <span className="font-mono text-[10px] text-slate-400 font-semibold">{p.id}</span>
+                        </div>
+                        <h4 className="font-bold text-slate-900 text-xs truncate mt-0.5">
+                          {p.name}
+                        </h4>
+                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border shrink-0 ${STATUS_COLORS[p.status]?.badge || 'bg-slate-100 text-slate-800'}`}>
+                        {p.status}
+                      </span>
+                    </div>
+
+                    <div className="mt-2.5 pt-2 border-t border-slate-200/70 grid grid-cols-2 gap-2 text-[11px]">
+                      <div>
+                        <span className="text-[9px] text-slate-400 block font-semibold">Surat Dinas:</span>
+                        <span className="font-mono text-[10px] text-slate-700 truncate block">
+                          {p.nomorSuratDinas || '-'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-slate-400 block font-semibold">Total FO:</span>
+                        <span className="font-mono text-[10px] text-blue-700 font-bold block">
+                          {foMetrics.formattedMeters} m
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-2.5">
+                      <div className="flex items-center justify-between text-[10px] font-semibold mb-1">
+                        <span className="text-slate-400 text-[9px]">{completion.label}</span>
+                        <span className="font-mono font-bold text-slate-800">{completion.score}%</span>
+                      </div>
+                      <div className="w-full bg-slate-200/80 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${completion.progressColor}`}
+                          style={{ width: `${completion.score}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-200/70 flex items-center justify-end space-x-1.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSelectProject(p.id);
+                        onSelectTab('construction');
+                      }}
+                      className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-[11px] font-bold transition cursor-pointer"
+                    >
+                      Fisik
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSelectProject(p.id);
+                        onSelectTab('pmo');
+                      }}
+                      className="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 rounded-lg text-[11px] font-bold transition cursor-pointer"
+                    >
+                      PMO
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         ) : (
+          /* Symmetrical Compact Table View in Overview */
           <div className="w-full overflow-hidden">
-            <table className="w-full text-left text-xs border-collapse table-auto">
+            <table className="w-full text-left text-xs border-collapse table-fixed">
               <thead>
                 <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-500 uppercase tracking-wider text-[10px] font-bold">
-                  <th className="py-3 px-3.5">Nama Project</th>
-                  <th className="py-3 px-2.5 hidden sm:table-cell">Surat Dinas</th>
-                  <th className="py-3 px-2.5">Status</th>
-                  <th className="py-3 px-2.5">Progress</th>
-                  <th className="py-3 px-3 text-right">Aksi Cepat</th>
+                  <th className="py-2.5 px-3 w-[34%]">Nama Project</th>
+                  <th className="py-2.5 px-2 hidden sm:table-cell w-[22%]">Surat Dinas</th>
+                  <th className="py-2.5 px-2 w-[14%]">Status</th>
+                  <th className="py-2.5 px-2 w-[14%]">Progress</th>
+                  <th className="py-2.5 px-3 text-right w-[16%]">Aksi Cepat</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -485,29 +620,29 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                   const completion = calculateProjectCompletion(p);
                   return (
                     <tr key={p.id} className="hover:bg-slate-50/60 transition">
-                      <td className="py-3 px-3.5">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-bold text-slate-900">{p.name}</span>
+                      <td className="py-2.5 px-3 truncate">
+                        <div className="flex items-center space-x-1.5 truncate">
+                          <span className="font-bold text-slate-900 truncate">{p.name}</span>
                           {p.area && (
-                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${AREA_COLORS[p.area]?.badge || 'bg-slate-100 text-slate-700'}`}>
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border shrink-0 ${AREA_COLORS[p.area]?.badge || 'bg-slate-100 text-slate-700'}`}>
                               {p.area}
                             </span>
                           )}
                         </div>
-                        <div className="font-mono text-[11px] text-slate-400">{p.id}</div>
+                        <div className="font-mono text-[10px] text-slate-400 truncate">{p.id}</div>
                       </td>
-                      <td className="py-3 px-2.5 hidden sm:table-cell">
-                        <div className="font-mono text-slate-700 truncate max-w-[160px]">{p.nomorSuratDinas || '-'}</div>
-                        <div className="text-[10px] text-slate-400">{p.tanggalSuratDinas || 'Belum ada'}</div>
+                      <td className="py-2.5 px-2 hidden sm:table-cell truncate">
+                        <div className="font-mono text-slate-700 truncate">{p.nomorSuratDinas || '-'}</div>
+                        <div className="text-[10px] text-slate-400 truncate">{p.tanggalSuratDinas || 'Belum ada'}</div>
                       </td>
-                      <td className="py-3 px-2.5">
-                        <span className={`inline-block font-bold px-2 py-0.5 rounded-md text-[11px] border ${STATUS_COLORS[p.status]?.badge || 'bg-slate-100 text-slate-800'}`}>
+                      <td className="py-2.5 px-2">
+                        <span className={`inline-block font-bold px-2 py-0.5 rounded-md text-[10px] border ${STATUS_COLORS[p.status]?.badge || 'bg-slate-100 text-slate-800'}`}>
                           {p.status}
                         </span>
                       </td>
-                      <td className="py-3 px-2.5">
-                        <div className="w-24 sm:w-28">
-                          <div className="flex items-center justify-between text-[10px] mb-1 font-semibold">
+                      <td className="py-2.5 px-2">
+                        <div className="w-full max-w-[100px]">
+                          <div className="flex items-center justify-between text-[10px] mb-0.5 font-semibold">
                             <span className="font-mono text-slate-800 font-bold">{completion.score}%</span>
                             <span className="text-slate-400 text-[9px] truncate ml-1">{completion.label}</span>
                           </div>
@@ -519,7 +654,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 px-3 text-right">
+                      <td className="py-2.5 px-3 text-right">
                         <div className="flex items-center justify-end space-x-1.5">
                           <button
                             type="button"

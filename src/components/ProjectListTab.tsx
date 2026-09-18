@@ -49,7 +49,20 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>(() => {
+    try {
+      const saved = localStorage.getItem('pmo_view_mode_pref');
+      if (saved === 'cards' || saved === 'table') return saved;
+    } catch (_) {}
+    return 'table';
+  });
+
+  const handleSetViewMode = (mode: 'table' | 'cards') => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem('pmo_view_mode_pref', mode);
+    } catch (_) {}
+  };
 
   const filterCounts = useMemo(() => ({
     ALL: projects.length,
@@ -117,31 +130,33 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
             </button>
           )}
 
-          {/* Toggle View Mode */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+          {/* Toggle View Mode: Tabel Compact vs Card Grid */}
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-2xs">
             <button
               type="button"
-              onClick={() => setViewMode('table')}
-              className={`p-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+              onClick={() => handleSetViewMode('table')}
+              className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                 viewMode === 'table'
-                  ? 'bg-white text-blue-700 shadow-2xs'
-                  : 'text-slate-500 hover:text-slate-900'
+                  ? 'bg-white text-blue-700 shadow-xs ring-1 ring-slate-200'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               }`}
-              title="Tampilan Tabel Ramping"
+              title="Tampilan Tabel Compact (Ramping & Bebas Geser)"
             >
-              <List className="w-4 h-4" />
+              <List className="w-3.5 h-3.5" />
+              <span>Tabel Compact</span>
             </button>
             <button
               type="button"
-              onClick={() => setViewMode('cards')}
-              className={`p-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+              onClick={() => handleSetViewMode('cards')}
+              className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                 viewMode === 'cards'
-                  ? 'bg-white text-blue-700 shadow-2xs'
-                  : 'text-slate-500 hover:text-slate-900'
+                  ? 'bg-white text-blue-700 shadow-xs ring-1 ring-slate-200'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
               }`}
-              title="Tampilan Kartu (Fit Layar)"
+              title="Tampilan Card Grid (Simetrik & Proporsional)"
             >
-              <LayoutGrid className="w-4 h-4" />
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>Card Grid</span>
             </button>
           </div>
 
@@ -388,15 +403,15 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
       ) : (
         /* COMPACT TABLE: FIT 100% CONTAINER WIDTH (NO HORIZONTAL SCROLL) */
         <div className="w-full rounded-2xl border border-slate-200 bg-white shadow-2xs overflow-hidden">
-          <table className="w-full text-xs text-left border-collapse table-auto">
+          <table className="w-full text-xs text-left border-collapse table-fixed">
             <thead>
               <tr className="bg-slate-50/90 border-b border-slate-200 text-slate-500 uppercase tracking-wider text-[10px] font-bold">
-                <th className="py-3 px-3.5">Nama & ID Project</th>
-                <th className="py-3 px-2.5">Area</th>
-                <th className="py-3 px-2.5 hidden md:table-cell">Surat Dinas</th>
-                <th className="py-3 px-2.5">Status</th>
-                <th className="py-3 px-2.5">Progress</th>
-                <th className="py-3 px-3 text-right">Aksi Cepat</th>
+                <th className="py-2.5 px-3 w-[33%]">Nama & ID Project</th>
+                <th className="py-2.5 px-2 w-[11%]">Area</th>
+                <th className="py-2.5 px-2 hidden md:table-cell w-[19%]">Surat Dinas</th>
+                <th className="py-2.5 px-2 w-[13%]">Status</th>
+                <th className="py-2.5 px-2 w-[11%]">Progress</th>
+                <th className="py-2.5 px-3 text-right w-[13%]">Aksi Cepat</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -407,39 +422,31 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
                 return (
                   <tr key={p.id} className="hover:bg-slate-50/80 transition">
                     {/* Name & ID */}
-                    <td className="py-3 px-3.5 align-middle">
-                      <div className="space-y-0.5">
+                    <td className="py-2 px-3 align-middle">
+                      <div className="space-y-0.5 truncate">
                         <button
                           type="button"
                           onClick={() => setEditingProject(p)}
-                          className="font-bold text-slate-900 hover:text-blue-600 text-left transition cursor-pointer line-clamp-1 block text-xs"
+                          className="font-bold text-slate-900 hover:text-blue-600 text-left transition cursor-pointer truncate block text-xs w-full"
                           title="Klik untuk melihat/mengubah detail project"
                         >
                           {p.name}
                         </button>
-                        <div className="flex flex-wrap items-center gap-x-2 text-[10px] text-slate-400">
+                        <div className="flex items-center space-x-1.5 text-[10px] text-slate-400 truncate">
                           <span className="font-mono font-semibold text-slate-500">{p.id}</span>
                           <span>•</span>
-                          <span>FO: {foMetrics.formattedMeters}m</span>
+                          <span className="font-mono text-blue-600 font-semibold">{foMetrics.formattedMeters}m</span>
                           <span>•</span>
-                          <span>
-                            Input: <strong className="text-slate-700 font-semibold">{p.createdBy?.name || 'Tim PMO'}</strong>
+                          <span className="truncate">
+                            By <strong className="text-slate-700 font-semibold">{p.createdBy?.name || 'Tim PMO'}</strong>
                           </span>
-                          {p.lastModifiedBy && (
-                            <>
-                              <span>•</span>
-                              <span className="text-blue-600 font-semibold">
-                                Edit: {p.lastModifiedBy.name}
-                              </span>
-                            </>
-                          )}
                         </div>
                       </div>
                     </td>
 
                     {/* Area Badge */}
-                    <td className="py-3 px-2.5 align-middle">
-                      <span className={`inline-block text-[11px] font-bold px-2 py-0.5 rounded-md border ${
+                    <td className="py-2 px-2 align-middle">
+                      <span className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded-md border ${
                         AREA_COLORS[p.area || 'Jabo 1']?.badge || 'bg-slate-100 text-slate-700'
                       }`}>
                         {p.area || 'Jabo 1'}
@@ -447,17 +454,17 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
                     </td>
 
                     {/* Surat Dinas */}
-                    <td className="py-3 px-2.5 align-middle hidden md:table-cell">
-                      <div className="font-mono text-[11px] text-slate-700 truncate max-w-[180px]">
+                    <td className="py-2 px-2 align-middle hidden md:table-cell">
+                      <div className="font-mono text-[11px] text-slate-700 truncate">
                         {p.nomorSuratDinas || '-'}
                       </div>
-                      <div className="text-[10px] text-slate-400">
+                      <div className="text-[10px] text-slate-400 truncate">
                         {p.tanggalSuratDinas || 'Belum ada'}
                       </div>
                     </td>
 
                     {/* Status */}
-                    <td className="py-3 px-2.5 align-middle">
+                    <td className="py-2 px-2 align-middle">
                       <select
                         value={p.status}
                         onChange={(e) =>
@@ -467,7 +474,7 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
                             updatedAt: new Date().toISOString().slice(0, 10),
                           })
                         }
-                        className={`text-[11px] font-bold rounded-lg px-2 py-1 border shadow-2xs cursor-pointer ${
+                        className={`text-[10px] font-bold rounded-lg px-2 py-1 border shadow-2xs cursor-pointer w-full max-w-[110px] ${
                           STATUS_COLORS[p.status]?.badge || 'bg-slate-50 text-slate-800'
                         }`}
                       >
@@ -479,11 +486,10 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
                     </td>
 
                     {/* Progress Bar */}
-                    <td className="py-3 px-2.5 align-middle">
-                      <div className="w-24 sm:w-28">
+                    <td className="py-2 px-2 align-middle">
+                      <div className="w-full max-w-[90px]">
                         <div className="flex items-center justify-between text-[10px] font-semibold text-slate-500 mb-0.5">
                           <span className="font-mono font-bold text-slate-800">{completion.score}%</span>
-                          <span className="text-[9px] text-slate-400 truncate ml-1">{completion.label}</span>
                         </div>
                         <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden border border-slate-200">
                           <div
@@ -495,7 +501,7 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
                     </td>
 
                     {/* Actions: Compact Icons & Buttons */}
-                    <td className="py-3 px-3 align-middle text-right">
+                    <td className="py-2 px-3 align-middle text-right">
                       <div className="flex items-center justify-end space-x-1">
                         <button
                           type="button"
@@ -503,10 +509,10 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
                             onSelectProject(p.id);
                             onSelectTab('construction');
                           }}
-                          className="p-1.5 rounded-lg text-blue-700 hover:bg-blue-50 border border-blue-200 transition cursor-pointer"
+                          className="px-2 py-1 rounded-md text-[11px] font-bold text-blue-700 hover:bg-blue-50 border border-blue-200 transition cursor-pointer"
                           title="Input Progres Fisik Konstruksi"
                         >
-                          <HardHat className="w-3.5 h-3.5" />
+                          Fisik
                         </button>
 
                         <button
@@ -515,16 +521,16 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
                             onSelectProject(p.id);
                             onSelectTab('pmo');
                           }}
-                          className="p-1.5 rounded-lg text-purple-700 hover:bg-purple-50 border border-purple-200 transition cursor-pointer"
+                          className="px-2 py-1 rounded-md text-[11px] font-bold text-purple-700 hover:bg-purple-50 border border-purple-200 transition cursor-pointer"
                           title="Input Laporan PMO & Timeline"
                         >
-                          <FileText className="w-3.5 h-3.5" />
+                          PMO
                         </button>
 
                         <button
                           type="button"
                           onClick={() => setEditingProject(p)}
-                          className="p-1.5 rounded-lg text-slate-600 hover:text-blue-700 hover:bg-slate-100 border border-slate-200 transition cursor-pointer"
+                          className="p-1 rounded-md text-slate-600 hover:text-blue-700 hover:bg-slate-100 border border-slate-200 transition cursor-pointer"
                           title="Edit Info Project"
                         >
                           <FileEdit className="w-3.5 h-3.5" />
@@ -533,7 +539,7 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
                         <button
                           type="button"
                           onClick={() => setDeleteConfirmId(p.id)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 transition cursor-pointer"
+                          className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 transition cursor-pointer"
                           title="Hapus Project"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

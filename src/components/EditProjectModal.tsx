@@ -91,19 +91,19 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
   return (
     <div
       id="edit-project-modal-backdrop"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
         id="edit-project-modal-card"
-        className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden animate-in zoom-in-95 duration-200"
+        className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden my-auto animate-in zoom-in-95 duration-200"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-slate-900 text-white border-b border-slate-800">
+        {/* Header - Fixed & Always Visible */}
+        <div className="shrink-0 flex items-center justify-between px-5 sm:px-6 py-3.5 sm:py-4 bg-slate-900 text-white border-b border-slate-800">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-white shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-white shadow-sm shrink-0">
               <FileEdit className="w-5 h-5" />
             </div>
             <div>
@@ -123,14 +123,15 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+            title="Tutup (Esc)"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Audit Info Bar */}
+        {/* Audit Info Bar - Fixed */}
         {(project.createdBy || project.lastModifiedBy) && (
-          <div className="px-6 py-2.5 bg-slate-50 border-b border-slate-100 flex flex-wrap items-center justify-between text-[11px] text-slate-500 gap-2">
+          <div className="shrink-0 px-5 sm:px-6 py-2 bg-slate-50 border-b border-slate-100 flex flex-wrap items-center justify-between text-[11px] text-slate-500 gap-2">
             {project.createdBy && (
               <span className="flex items-center space-x-1">
                 <span className="text-slate-400">Dibuat oleh:</span>
@@ -147,8 +148,9 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
           </div>
         )}
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        {/* Form Body - Scrollable content + Docked footer */}
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
           {/* Project Name */}
           <div>
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
@@ -278,12 +280,14 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
             />
           </div>
 
-          {/* Action Buttons with prominent Kembali & Simpan */}
-          <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+          </div>
+
+          {/* Action Buttons with prominent Kembali & Simpan - Docked at Bottom */}
+          <div className="shrink-0 px-4 sm:px-6 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition cursor-pointer"
+              className="inline-flex items-center space-x-1.5 px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-200/70 rounded-xl transition cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Kembali</span>
@@ -291,7 +295,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
 
             <button
               type="submit"
-              className={`inline-flex items-center space-x-1.5 px-5 py-2 text-xs font-bold rounded-xl text-white shadow-sm transition active:scale-[0.98] cursor-pointer ${
+              className={`inline-flex items-center space-x-1.5 px-5 py-2 text-xs font-bold rounded-xl text-white shadow-xs transition active:scale-[0.98] cursor-pointer ${
                 isSavedRecently
                   ? 'bg-emerald-600 hover:bg-emerald-700 ring-2 ring-emerald-400'
                   : 'bg-blue-600 hover:bg-blue-700'

@@ -186,7 +186,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100/60 text-slate-800 font-sans flex flex-col antialiased w-full overflow-x-hidden">
+    <div className="min-h-screen lg:h-screen bg-slate-100/70 text-slate-800 font-sans flex flex-col antialiased w-full overflow-x-hidden lg:overflow-hidden">
       {/* Top Navbar with live presence and collaborator identity */}
       <Navbar
         projects={projects}
@@ -211,9 +211,9 @@ export default function App() {
         isSaving={false}
       />
 
-      {/* Main Container */}
-      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-6 w-full flex-1 min-w-0">
-        <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start w-full min-w-0">
+      {/* Main Proportional & Symmetrical Container */}
+      <div className="max-w-[1680px] mx-auto px-3 sm:px-5 lg:px-6 py-3 sm:py-3.5 w-full flex-1 min-h-0 min-w-0 flex flex-col">
+        <div className="flex flex-col lg:flex-row gap-3.5 sm:gap-4 items-stretch w-full flex-1 min-h-0 min-w-0">
           {/* Sidebar Navigation */}
           <Sidebar
             activeTab={activeTab}
@@ -224,8 +224,8 @@ export default function App() {
             currentUser={currentUser}
           />
 
-          {/* Tab Content Box */}
-          <main className="flex-1 w-full min-w-0 bg-white rounded-2xl shadow-2xs border border-slate-200/90 p-4 sm:p-6 min-h-[84vh]">
+          {/* Tab Content Box - Symmetrical, Clean Internal Scrolling */}
+          <main className="flex-1 w-full min-w-0 bg-white rounded-2xl shadow-2xs border border-slate-200/90 p-3.5 sm:p-5 flex flex-col min-h-0 lg:overflow-y-auto">
             {activeTab === 'overview' && (
               <OverviewTab
                 projects={projects}
@@ -295,15 +295,15 @@ export default function App() {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="w-full border-t border-slate-200 bg-white/80 backdrop-blur-xs py-4 px-4 sm:px-8 mt-auto">
-        <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      {/* Symmetrical & Compact Docked Footer */}
+      <footer className="w-full border-t border-slate-200/90 bg-white/90 backdrop-blur-xs py-2 px-4 sm:px-6 shrink-0">
+        <div className="max-w-[1680px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-1.5 text-[11px] text-slate-500">
           <div className="flex items-center space-x-2">
             <span className="font-bold text-slate-800">PMO MS Project monitoring</span>
             <span>•</span>
-            <span>Telecommunication Civil Works & Fiber Optic Pipeline</span>
+            <span className="hidden sm:inline">Telecommunication Civil Works & Fiber Optic Pipeline</span>
           </div>
-          <div className="font-medium text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+          <div className="font-medium text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200 text-[10px]">
             © Copyright PAUL. All rights reserved.
           </div>
         </div>

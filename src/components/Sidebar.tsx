@@ -140,17 +140,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       activeBg: 'from-emerald-600 to-teal-600',
     },
     ...((() => {
-      const isPaul =
-        currentUser?.name?.toLowerCase().trim() === 'paul' ||
-        currentUser?.name?.toLowerCase().includes('paul') ||
-        currentUser?.role?.toLowerCase() === 'admin';
-      if (!isPaul) return [];
+      const isAuthorized = Boolean(currentUser?.name || currentUser?.role);
+      if (!isAuthorized) return [];
       return [
         {
           id: 'activities' as TabType,
           label: 'Audit & Log Trafik',
-          description: 'Riwayat data & pembukaan link',
-          icon: <History className="w-5 h-5" />,
+          description: 'Riwayat data & monitoring link',
+          icon: <History className="w-4 h-4" />,
           color: 'text-rose-600',
           activeBg: 'from-rose-600 to-pink-600',
         },
@@ -159,11 +156,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="w-full lg:w-72 flex-shrink-0 select-none">
-      <div className="bg-white rounded-2xl shadow-2xs border border-slate-200 p-3.5 lg:sticky lg:top-24 space-y-4">
+    <aside className="w-full lg:w-72 shrink-0 select-none flex flex-col min-h-0">
+      <div className="bg-white rounded-2xl shadow-2xs border border-slate-200 p-3 space-y-3 lg:overflow-y-auto min-h-0">
         {/* Navigation Group Header */}
         <div>
-          <div className="flex items-center justify-between px-3 pt-1 pb-2">
+          <div className="flex items-center justify-between px-2 pt-0.5 pb-1.5">
             <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center space-x-1.5">
               <Zap className="w-3 h-3 text-blue-600" />
               <span>Navigasi Menu</span>
@@ -173,7 +170,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </span>
           </div>
 
-          <nav className="space-y-1.5">
+          <nav className="space-y-1">
             {navItems.map((item) => {
               const isActive = activeTab === item.id;
               const isHovered = hoveredTab === item.id;
