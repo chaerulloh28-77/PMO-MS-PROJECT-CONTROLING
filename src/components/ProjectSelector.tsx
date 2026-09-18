@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, FolderKanban, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, FolderKanban, AlertCircle, CheckCircle2, Building2 } from 'lucide-react';
 import { Project } from '../types';
 import { STATUS_COLORS, AREA_COLORS } from '../data/initialProjects';
 import { calculateProjectCompletion } from '../utils/projectMetrics';
@@ -54,7 +54,7 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
               <option value="" disabled>-- {projects.length === 0 ? 'Belum Ada Project Terdaftar' : 'Pilih Project'} --</option>
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name || '(Tanpa Nama)'} • [{p.area || 'Jabo 1'}] • [{p.status}]
+                  {p.name || '(Tanpa Nama)'} {p.vendorPelaksana ? `• [Vendor: ${p.vendorPelaksana}] ` : ''}• [{p.area || 'Jabo 1'}] • [{p.status}]
                 </option>
               ))}
             </select>
@@ -103,6 +103,20 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
                 {activeProject.status}
               </span>
             </div>
+
+            {/* Vendor Pelaksana */}
+            {activeProject.vendorPelaksana && (
+              <div>
+                <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Vendor Pelaksana</span>
+                <span
+                  className="inline-flex items-center space-x-1.5 font-bold px-2.5 py-0.5 rounded-md text-xs bg-amber-50 text-amber-900 border border-amber-200 mt-0.5 max-w-[190px] truncate"
+                  title={`Vendor Pelaksana: ${activeProject.vendorPelaksana}`}
+                >
+                  <Building2 className="w-3 h-3 text-amber-600 shrink-0" />
+                  <span className="truncate">{activeProject.vendorPelaksana}</span>
+                </span>
+              </div>
+            )}
 
             <div className="h-8 w-px bg-slate-200 hidden sm:block" />
 

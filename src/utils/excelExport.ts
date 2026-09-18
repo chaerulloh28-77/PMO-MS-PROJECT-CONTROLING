@@ -8,6 +8,7 @@ export function exportProjectsToExcel(projects: Project[]) {
   const listData = projects.map(p => ({
     'ID Project': p.id,
     'Nama Project': p.name,
+    'Vendor Pelaksana': p.vendorPelaksana || '-',
     'Area': p.area || 'Jabo 1',
     'Tanggal Surat Dinas': p.tanggalSuratDinas || '-',
     'Nomor Surat Dinas': p.nomorSuratDinas || '-',
@@ -29,6 +30,7 @@ export function exportProjectsToExcel(projects: Project[]) {
     return {
       'ID Project': p.id,
       'Nama Project': p.name,
+      'Vendor Pelaksana': p.vendorPelaksana || '-',
       'Area': p.area || 'Jabo 1',
       'Status': p.status,
       'Boring Alur (m)': p.construction.boring.alur || '0',
@@ -61,6 +63,7 @@ export function exportProjectsToExcel(projects: Project[]) {
   const pmoData = projects.map(p => ({
     'ID Project': p.id,
     'Nama Project': p.name,
+    'Vendor Pelaksana': p.vendorPelaksana || '-',
     'Area': p.area || 'Jabo 1',
     'Tanggal Surat Dinas': p.tanggalSuratDinas || '-',
     'Nomor Surat Dinas': p.nomorSuratDinas || '-',

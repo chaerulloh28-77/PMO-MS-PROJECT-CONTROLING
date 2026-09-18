@@ -94,6 +94,7 @@ export interface ActivityLog {
 export interface Project {
   id: string;
   name: string;
+  vendorPelaksana?: string;
   area?: ProjectArea;
   tanggalSuratDinas?: string;
   nomorSuratDinas?: string;

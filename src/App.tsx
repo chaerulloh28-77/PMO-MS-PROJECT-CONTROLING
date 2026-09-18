@@ -126,6 +126,7 @@ export default function App() {
 
   const handleCreateProject = (data: {
     name: string;
+    vendorPelaksana?: string;
     picName: string;
     area: ProjectArea;
     tanggalSuratDinas: string;
@@ -149,7 +150,8 @@ export default function App() {
       data.tanggalSuratDinas,
       data.nomorSuratDinas,
       data.remarks,
-      data.area
+      data.area,
+      data.vendorPelaksana || ''
     );
     newProj.createdBy = {
       id: currentUser.id,

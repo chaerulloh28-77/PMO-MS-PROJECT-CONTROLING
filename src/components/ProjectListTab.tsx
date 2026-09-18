@@ -16,6 +16,7 @@ import {
   ArrowRight,
   CheckCircle2,
   Info,
+  Building2,
 } from 'lucide-react';
 import { Project, ProjectStatus, TabType, ProjectArea, PROJECT_AREAS } from '../types';
 import { STATUS_COLORS, AREA_COLORS } from '../data/initialProjects';
@@ -79,6 +80,7 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
         !term ||
         p.name.toLowerCase().includes(term) ||
         p.id.toLowerCase().includes(term) ||
+        (p.vendorPelaksana && p.vendorPelaksana.toLowerCase().includes(term)) ||
         (p.remarks && p.remarks.toLowerCase().includes(term)) ||
         (p.area && p.area.toLowerCase().includes(term)) ||
         (p.tanggalSuratDinas && p.tanggalSuratDinas.toLowerCase().includes(term)) ||
@@ -299,8 +301,17 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
                     </span>
                   </div>
 
+                  {/* Vendor Pelaksana */}
+                  <div className="mt-2.5 px-2.5 py-1.5 rounded-xl bg-amber-50/80 border border-amber-200/80 flex items-center space-x-1.5 text-[11px] text-amber-900">
+                    <Building2 className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wide">Vendor:</span>
+                    <span className="font-bold text-amber-950 truncate">
+                      {p.vendorPelaksana || 'Belum Ditentukan'}
+                    </span>
+                  </div>
+
                   {/* Surat Dinas & FO Info */}
-                  <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
+                  <div className="mt-2.5 pt-2.5 border-t border-slate-100 grid grid-cols-2 gap-2 text-xs">
                     <div>
                       <span className="text-[10px] text-slate-400 block font-semibold">Surat Dinas:</span>
                       <span className="font-mono text-[11px] text-slate-700 font-medium truncate block">
@@ -434,6 +445,18 @@ export const ProjectListTab: React.FC<ProjectListTabProps> = ({
                         </button>
                         <div className="flex items-center space-x-1.5 text-[10px] text-slate-400 truncate">
                           <span className="font-mono font-semibold text-slate-500">{p.id}</span>
+                          {p.vendorPelaksana && (
+                            <>
+                              <span>•</span>
+                              <span
+                                className="inline-flex items-center space-x-1 font-semibold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 truncate max-w-[140px]"
+                                title={`Vendor Pelaksana: ${p.vendorPelaksana}`}
+                              >
+                                <Building2 className="w-2.5 h-2.5 text-amber-600 shrink-0" />
+                                <span className="truncate">{p.vendorPelaksana}</span>
+                              </span>
+                            </>
+                          )}
                           <span>•</span>
                           <span className="font-mono text-blue-600 font-semibold">{foMetrics.formattedMeters}m</span>
                           <span>•</span>

@@ -11,6 +11,7 @@ import {
   Save,
   CheckCircle2,
   MapPin,
+  Building2,
 } from 'lucide-react';
 import { Project, ProjectStatus, ProjectArea, PROJECT_AREAS } from '../types';
 import { UserCheck } from 'lucide-react';
@@ -31,6 +32,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
   currentPicName = '',
 }) => {
   const [name, setName] = useState('');
+  const [vendorPelaksana, setVendorPelaksana] = useState('');
   const [editorPicName, setEditorPicName] = useState(currentPicName);
   const [area, setArea] = useState<ProjectArea>('Jabo 1');
   const [tanggalSuratDinas, setTanggalSuratDinas] = useState('');
@@ -42,6 +44,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
   useEffect(() => {
     if (project) {
       setName(project.name || '');
+      setVendorPelaksana(project.vendorPelaksana || '');
       setEditorPicName(currentPicName || '');
       setArea(project.area || 'Jabo 1');
       setTanggalSuratDinas(project.tanggalSuratDinas || '');
@@ -61,6 +64,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
     const updated: Project = {
       ...project,
       name: name.trim(),
+      vendorPelaksana: vendorPelaksana.trim(),
       area,
       tanggalSuratDinas: tanggalSuratDinas.trim(),
       nomorSuratDinas: nomorSuratDinas.trim(),
@@ -164,6 +168,27 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
               placeholder="Nama project relokasi fiber optic..."
               className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 transition shadow-2xs font-medium"
             />
+          </div>
+
+          {/* Nama Vendor Pelaksana */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+              <span className="flex items-center space-x-1.5">
+                <Building2 className="w-3.5 h-3.5 text-blue-600" />
+                <span>Nama Vendor Pelaksana (Mitra Kerja)</span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-normal">Kontraktor / Pelaksana Lapangan</span>
+            </label>
+            <input
+              type="text"
+              value={vendorPelaksana}
+              onChange={(e) => setVendorPelaksana(e.target.value)}
+              placeholder="Contoh: PT Telko Prima, PT Fiber Mandiri, CV Cahaya Optik"
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 transition shadow-2xs font-medium"
+            />
+            <p className="text-[11px] text-slate-400 mt-1">
+              Nama kontraktor/rekanan vendor yang melaksanakan penarikan kabel FO, boring, dan konstruksi sipil.
+            </p>
           </div>
 
           {/* PIC Editor Input */}

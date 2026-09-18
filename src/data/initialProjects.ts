@@ -87,7 +87,8 @@ export function createNewProject(
   tanggalSuratDinas = '',
   nomorSuratDinas = '',
   remarks = '',
-  area: ProjectArea = 'Jabo 1'
+  area: ProjectArea = 'Jabo 1',
+  vendorPelaksana = ''
 ): Project {
   const emptyPullingFO: Record<FOCableKey, number> = {
     '288 GL': 0,
@@ -113,6 +114,7 @@ export function createNewProject(
   return {
     id: 'PRJ-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(Math.random() * 1000),
     name,
+    vendorPelaksana: vendorPelaksana.trim(),
     area,
     tanggalSuratDinas,
     nomorSuratDinas,

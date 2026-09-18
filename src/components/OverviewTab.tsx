@@ -28,6 +28,7 @@ import {
   ShieldCheck,
   List,
   LayoutGrid,
+  Building2,
 } from 'lucide-react';
 import { Project, TabType } from '../types';
 import { STATUS_COLORS, AREA_COLORS } from '../data/initialProjects';
@@ -547,6 +548,15 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                       </span>
                     </div>
 
+                    {/* Vendor Pelaksana */}
+                    {p.vendorPelaksana && (
+                      <div className="mt-2 px-2 py-1 rounded-lg bg-amber-50 border border-amber-200/70 flex items-center space-x-1.5 text-[10px] text-amber-900 truncate">
+                        <Building2 className="w-3 h-3 text-amber-600 shrink-0" />
+                        <span className="font-semibold text-amber-800 uppercase tracking-wide">Vendor:</span>
+                        <span className="font-bold text-amber-950 truncate">{p.vendorPelaksana}</span>
+                      </div>
+                    )}
+
                     <div className="mt-2.5 pt-2 border-t border-slate-200/70 grid grid-cols-2 gap-2 text-[11px]">
                       <div>
                         <span className="text-[9px] text-slate-400 block font-semibold">Surat Dinas:</span>
@@ -629,7 +639,21 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                             </span>
                           )}
                         </div>
-                        <div className="font-mono text-[10px] text-slate-400 truncate">{p.id}</div>
+                        <div className="font-mono text-[10px] text-slate-400 truncate flex items-center space-x-1.5 mt-0.5">
+                          <span>{p.id}</span>
+                          {p.vendorPelaksana && (
+                            <>
+                              <span>•</span>
+                              <span
+                                className="inline-flex items-center space-x-1 font-semibold text-amber-800 bg-amber-50 px-1 py-0.5 rounded border border-amber-200/70 truncate max-w-[130px]"
+                                title={`Vendor Pelaksana: ${p.vendorPelaksana}`}
+                              >
+                                <Building2 className="w-2.5 h-2.5 text-amber-600 shrink-0" />
+                                <span className="truncate">{p.vendorPelaksana}</span>
+                              </span>
+                            </>
+                          )}
+                        </div>
                       </td>
                       <td className="py-2.5 px-2 hidden sm:table-cell truncate">
                         <div className="font-mono text-slate-700 truncate">{p.nomorSuratDinas || '-'}</div>
