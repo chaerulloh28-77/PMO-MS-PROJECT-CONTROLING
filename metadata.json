@@ -1,0 +1,6 @@
+{
+  "name": "PMO MS Project monitoring",
+  "description": "Comprehensive project monitoring and PMO tracking dashboard for fiber optic and civil construction projects.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
