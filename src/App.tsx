@@ -35,6 +35,7 @@ export default function App() {
     clearActivities,
     onlineUsers,
     isConnected,
+    isWsConnected,
     createProject,
     updateProject,
     deleteProject,
@@ -192,6 +193,7 @@ export default function App() {
         currentUser={currentUser}
         onlineUsers={onlineUsers}
         isConnected={isConnected}
+        isWsConnected={isWsConnected}
         onAddNewProject={handleOpenNewProjectModal}
         onExportExcel={handleExportExcel}
         onOpenProfile={() => setIsProfileModalOpen(true)}
@@ -285,6 +287,8 @@ export default function App() {
                 onOpenProfile={() => setIsProfileModalOpen(true)}
                 onSelectProjectTab={setActiveTab}
                 onClearActivities={clearActivities}
+                isConnected={isConnected}
+                isWsConnected={isWsConnected}
               />
             )}
           </main>

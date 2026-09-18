@@ -21,6 +21,7 @@ interface NavbarProps {
   currentUser?: AuditUser;
   onlineUsers?: AuditUser[];
   isConnected?: boolean;
+  isWsConnected?: boolean;
   onAddNewProject: () => void;
   onExportExcel: () => void;
   onOpenProfile?: () => void;
@@ -35,6 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   currentUser,
   onlineUsers = [],
   isConnected = true,
+  isWsConnected = false,
   onAddNewProject,
   onExportExcel,
   onOpenProfile,
@@ -153,22 +155,21 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Connection Status indicator */}
             <div
-              className={`hidden md:flex items-center space-x-1 px-2.5 py-1.5 rounded-xl border text-[11px] font-mono shadow-2xs ${
-                isConnected
-                  ? 'bg-slate-900/90 border-slate-800 text-emerald-400'
-                  : 'bg-rose-950/60 border-rose-800 text-rose-300'
-              }`}
-              title={isConnected ? 'Terhubung real-time ke server' : 'Menghubungkan ulang...'}
+              className="hidden md:flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl border text-[11px] font-mono shadow-2xs bg-slate-900/90 border-slate-800 text-slate-300"
+              title={isWsConnected ? 'Terhubung real-time WebSocket ke server' : 'Sistem Aktif (Sinkronisasi Otomatis Lokal & Antar Tab)'}
             >
-              {isConnected ? (
+              {isWsConnected ? (
                 <>
                   <Wifi className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="hidden xl:inline text-slate-400 font-sans">Live Sync</span>
+                  <span className="hidden xl:inline text-emerald-400 font-sans font-semibold">Live Sync</span>
                 </>
               ) : (
                 <>
-                  <WifiOff className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
-                  <span className="text-rose-300 font-sans">Reconnecting</span>
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  <span className="hidden xl:inline text-emerald-400 font-sans font-medium">Aktif</span>
                 </>
               )}
             </div>

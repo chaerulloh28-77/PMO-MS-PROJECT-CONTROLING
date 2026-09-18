@@ -22,6 +22,8 @@ interface ActivitiesTabProps {
   onOpenProfile: () => void;
   onSelectProjectTab: (tab: TabType) => void;
   onClearActivities?: () => void;
+  isConnected?: boolean;
+  isWsConnected?: boolean;
 }
 
 export const ActivitiesTab: React.FC<ActivitiesTabProps> = ({
@@ -31,16 +33,18 @@ export const ActivitiesTab: React.FC<ActivitiesTabProps> = ({
   onOpenProfile,
   onSelectProjectTab,
   onClearActivities,
+  isConnected = true,
+  isWsConnected = false,
 }) => {
   const [filterType, setFilterType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const isPaul =
-    currentUser?.name?.toLowerCase().trim() === 'paul' ||
-    currentUser?.name?.toLowerCase().includes('paul') ||
-    currentUser?.role?.toLowerCase() === 'admin';
+  const isAuthorized = Boolean(
+    currentUser?.name ||
+    currentUser?.role
+  );
 
-  if (!isPaul) {
+  if (!isAuthorized) {
     return (
       <div className="flex flex-col items-center justify-center py-20 px-4 text-center max-w-md mx-auto">
         <div className="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 mb-4 shadow-xs">
@@ -48,14 +52,14 @@ export const ActivitiesTab: React.FC<ActivitiesTabProps> = ({
         </div>
         <h2 className="text-lg font-black text-slate-900">Akses Terbatas</h2>
         <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-          Halaman ini hanya dapat diakses melalui otorisasi sistem.
+          Silakan lengkapi identitas PIC untuk membuka modul Audit & Monitoring Log Trafik.
         </p>
         <button
           type="button"
-          onClick={() => onSelectProjectTab('overview')}
+          onClick={() => onOpenProfile()}
           className="mt-6 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition cursor-pointer"
         >
-          Kembali ke Overview
+          Buka Profil PIC
         </button>
       </div>
     );
@@ -168,9 +172,18 @@ export const ActivitiesTab: React.FC<ActivitiesTabProps> = ({
               <ShieldCheck className="w-4 h-4" />
             </div>
             <div>
-              <h1 className="text-base font-extrabold text-white tracking-tight">
-                Audit & Monitoring Log Trafik
-              </h1>
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-base font-extrabold text-white tracking-tight">
+                  Audit & Monitoring Log Trafik
+                </h1>
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>{isWsConnected ? 'Live Server' : 'Monitoring Aktif (Auto-Sync)'}</span>
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Audit trail real-time: memantau akses buka link, penambahan, perubahan, dan penghapusan data
+              </p>
             </div>
           </div>
         </div>
