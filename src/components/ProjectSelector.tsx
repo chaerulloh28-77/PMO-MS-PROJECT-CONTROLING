@@ -42,7 +42,7 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
             <FolderKanban className="w-4 h-4 text-blue-600" />
             <span>Pilih Project Aktif ({sectionTitle})</span>
             <span className="text-[11px] font-normal text-slate-400 capitalize">
-              ({currentIndex + 1} dari {projects.length} Project)
+              {projects.length > 0 ? `(${currentIndex + 1} dari ${projects.length} Project)` : '(0 Project)'}
             </span>
           </label>
           <div className="flex items-center space-x-2">
@@ -51,7 +51,7 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
               onChange={(e) => onSelectProject(e.target.value)}
               className="bg-white border border-slate-300 text-slate-900 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full px-3.5 py-2.5 shadow-xs transition cursor-pointer"
             >
-              <option value="" disabled>-- Pilih Project --</option>
+              <option value="" disabled>-- {projects.length === 0 ? 'Belum Ada Project Terdaftar' : 'Pilih Project'} --</option>
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name || '(Tanpa Nama)'} • [{p.area || 'Jabo 1'}] • [{p.status}]

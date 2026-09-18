@@ -12,15 +12,17 @@ import { PmoReportTab } from './components/PmoReportTab';
 import { NewProjectModal } from './components/NewProjectModal';
 import { CheckCircle, Download } from 'lucide-react';
 
-const STORAGE_KEY = 'monitoringProjectsData';
+const STORAGE_KEY = 'monitoringProjectsData_v3';
 
 export default function App() {
   const [projects, setProjects] = useState<Project[]>(() => {
     try {
+      // Clear old dummy mock storage
+      localStorage.removeItem('monitoringProjectsData');
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           return parsed;
         }
       }
@@ -83,7 +85,7 @@ export default function App() {
     showToast(`Project "${newProj.name}" berhasil dibuat`);
   };
 
-  const handleAddNewProject = (customName?: string) => {
+  const handleAddNewProject = (_customName?: string) => {
     handleOpenNewProjectModal();
   };
 
@@ -101,6 +103,12 @@ export default function App() {
     showToast('Project berhasil dihapus');
   };
 
+  const handleClearAllProjects = () => {
+    saveProjects([]);
+    setSelectedProjectId('');
+    showToast('Semua data project telah dikosongkan');
+  };
+
   const handleExportExcel = () => {
     exportProjectsToExcel(projects);
     showToast('File Excel laporan PMO berhasil di-download');
@@ -114,7 +122,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100/60 text-slate-800 font-sans flex flex-col antialiased">
+    <div className="min-h-screen bg-slate-100/60 text-slate-800 font-sans flex flex-col antialiased w-full overflow-x-hidden">
       {/* Top Navbar */}
       <Navbar
         projects={projects}
@@ -124,8 +132,8 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1">
-        <div className="flex flex-col lg:flex-row gap-6 items-start">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-6 w-full flex-1 min-w-0">
+        <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start w-full min-w-0">
           {/* Sidebar */}
           <Sidebar
             activeTab={activeTab}
@@ -134,12 +142,13 @@ export default function App() {
           />
 
           {/* Tab Content Box */}
-          <main className="flex-1 w-full bg-white rounded-2xl shadow-2xs border border-slate-200/90 p-5 sm:p-7 min-h-[84vh] overflow-hidden">
+          <main className="flex-1 w-full min-w-0 bg-white rounded-2xl shadow-2xs border border-slate-200/90 p-4 sm:p-6 min-h-[84vh]">
             {activeTab === 'overview' && (
               <OverviewTab
                 projects={projects}
                 onSelectTab={setActiveTab}
                 onSelectProject={setSelectedProjectId}
+                onAddNewProject={handleAddNewProject}
               />
             )}
 
@@ -149,6 +158,7 @@ export default function App() {
                 onAddNewProject={() => handleAddNewProject()}
                 onUpdateProject={handleUpdateProject}
                 onDeleteProject={handleDeleteProject}
+                onClearAllProjects={handleClearAllProjects}
                 onSelectProject={setSelectedProjectId}
                 onSelectTab={setActiveTab}
               />
