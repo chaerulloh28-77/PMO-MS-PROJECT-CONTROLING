@@ -28,7 +28,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { Project, TabType } from '../types';
-import { STATUS_COLORS } from '../data/initialProjects';
+import { STATUS_COLORS, AREA_COLORS } from '../data/initialProjects';
 import { calculateProjectCompletion, calculatePullingFOMetrics, calculateStructuresMetrics } from '../utils/projectMetrics';
 
 interface OverviewTabProps {
@@ -136,7 +136,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             onClick={() => onSelectTab('projectList')}
             className="text-xs font-bold text-slate-700 hover:text-slate-900 flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 transition shadow-2xs cursor-pointer active:scale-95"
           >
-            <span>Daftar Proyek</span>
+            <span>Daftar Project</span>
             <ArrowRight className="w-3.5 h-3.5 text-slate-500" />
           </button>
           <button
@@ -155,7 +155,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         {/* Card 1: Total Projects */}
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Proyek</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Project</span>
             <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shadow-2xs">
               <FolderKanban className="w-4 h-4" />
             </div>
@@ -297,7 +297,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs flex flex-col justify-between">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <h3 className="text-sm font-bold text-slate-900">Distribusi Status Pipeline Proyek</h3>
+              <h3 className="text-sm font-bold text-slate-900">Distribusi Status Pipeline Project</h3>
               <p className="text-xs text-slate-500">Proporsi tahapan pekerjaan seluruh project aktif</p>
             </div>
             <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
@@ -323,7 +323,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(val: any) => [`${Number(val || 0)} Proyek`, 'Jumlah']}
+                    formatter={(val: any) => [`${Number(val || 0)} Project`, 'Jumlah']}
                     contentStyle={{ backgroundColor: '#0f172a', borderRadius: '12px', border: 'none', color: '#fff', fontSize: '12px', padding: '8px 12px' }}
                   />
                   <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
@@ -386,8 +386,8 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3 mb-4 border-b border-slate-100 gap-2">
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Volume Proyek Berdasarkan Status Pekerjaan</h3>
-            <p className="text-xs text-slate-500">Perbandingan kuantitas proyek pada masing-masing fase delivery</p>
+            <h3 className="text-sm font-bold text-slate-900">Volume Project Berdasarkan Status Pekerjaan</h3>
+            <p className="text-xs text-slate-500">Perbandingan kuantitas project pada masing-masing fase delivery</p>
           </div>
           <button
             type="button"
@@ -406,7 +406,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
               <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
               <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
               <Tooltip
-                formatter={(val: any) => [`${Number(val || 0)} Proyek`, 'Jumlah']}
+                formatter={(val: any) => [`${Number(val || 0)} Project`, 'Jumlah']}
                 contentStyle={{ backgroundColor: '#0f172a', borderRadius: '10px', border: 'none', color: '#fff', fontSize: '12px' }}
               />
               <Bar dataKey="count" radius={[8, 8, 0, 0]} maxBarSize={48}>
@@ -423,7 +423,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
       <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
         <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h3 className="text-sm font-bold text-slate-900">Daftar Proyek & Kelengkapan Data</h3>
+            <h3 className="text-sm font-bold text-slate-900">Daftar Project & Kelengkapan Data</h3>
             <p className="text-xs text-slate-500">Klik tombol cepat untuk melengkapi progres konstruksi atau laporan PMO</p>
           </div>
           <button
@@ -431,7 +431,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
             onClick={() => onSelectTab('projectList')}
             className="text-xs font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-200 transition cursor-pointer"
           >
-            Lihat Semua Proyek ({projects.length})
+            Lihat Semua Project ({projects.length})
           </button>
         </div>
 
@@ -439,7 +439,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-500 uppercase tracking-wider text-[10px] font-bold">
-                <th className="py-3 px-4">Nama Proyek</th>
+                <th className="py-3 px-4">Nama Project</th>
                 <th className="py-3 px-3">Surat Dinas</th>
                 <th className="py-3 px-3">Status</th>
                 <th className="py-3 px-4">Kelengkapan Data</th>
@@ -452,7 +452,14 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({
                 return (
                   <tr key={p.id} className="hover:bg-slate-50/60 transition">
                     <td className="py-3 px-4">
-                      <div className="font-bold text-slate-900">{p.name}</div>
+                      <div className="flex items-center space-x-2">
+                        <span className="font-bold text-slate-900">{p.name}</span>
+                        {p.area && (
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${AREA_COLORS[p.area]?.badge || 'bg-slate-100 text-slate-700'}`}>
+                            {p.area}
+                          </span>
+                        )}
+                      </div>
                       <div className="font-mono text-[11px] text-slate-400">{p.id}</div>
                     </td>
                     <td className="py-3 px-3">

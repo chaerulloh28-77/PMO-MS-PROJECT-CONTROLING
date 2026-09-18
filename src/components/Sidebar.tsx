@@ -52,7 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     },
     {
       id: 'projectList',
-      label: 'Daftar Proyek',
+      label: 'Daftar Project',
       description: 'Master list & surat dinas',
       icon: <ClipboardList className="w-5 h-5 text-indigo-600" />,
       badge: (

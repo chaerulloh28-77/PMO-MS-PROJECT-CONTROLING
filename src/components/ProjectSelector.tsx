@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight, FolderKanban, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Project } from '../types';
-import { STATUS_COLORS } from '../data/initialProjects';
+import { STATUS_COLORS, AREA_COLORS } from '../data/initialProjects';
 import { calculateProjectCompletion } from '../utils/projectMetrics';
 
 interface ProjectSelectorProps {
@@ -42,7 +42,7 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
             <FolderKanban className="w-4 h-4 text-blue-600" />
             <span>Pilih Project Aktif ({sectionTitle})</span>
             <span className="text-[11px] font-normal text-slate-400 capitalize">
-              ({currentIndex + 1} dari {projects.length} Proyek)
+              ({currentIndex + 1} dari {projects.length} Project)
             </span>
           </label>
           <div className="flex items-center space-x-2">
@@ -54,7 +54,7 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
               <option value="" disabled>-- Pilih Project --</option>
               {projects.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name || '(Tanpa Nama)'} • [{p.status}]
+                  {p.name || '(Tanpa Nama)'} • [{p.area || 'Jabo 1'}] • [{p.status}]
                 </option>
               ))}
             </select>
@@ -66,7 +66,7 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
                 onClick={handlePrev}
                 disabled={currentIndex <= 0}
                 className="p-2.5 rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition shadow-2xs active:scale-95 cursor-pointer"
-                title="Proyek Sebelumnya"
+                title="Project Sebelumnya"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -75,7 +75,7 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
                 onClick={handleNext}
                 disabled={currentIndex >= projects.length - 1 || currentIndex === -1}
                 className="p-2.5 rounded-xl bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed transition shadow-2xs active:scale-95 cursor-pointer"
-                title="Proyek Berikutnya"
+                title="Project Berikutnya"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -86,6 +86,16 @@ export const ProjectSelector: React.FC<ProjectSelectorProps> = ({
         {/* Selected Project Status Badge & Completion Score */}
         {activeProject ? (
           <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+            {/* Area Badge */}
+            {activeProject.area && (
+              <div>
+                <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Area</span>
+                <span className={`inline-block font-bold px-2.5 py-0.5 rounded-md text-xs border mt-0.5 ${AREA_COLORS[activeProject.area]?.badge || 'bg-slate-100 text-slate-700 border-slate-200'}`}>
+                  {activeProject.area}
+                </span>
+              </div>
+            )}
+
             {/* Status */}
             <div>
               <span className="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Status Pipeline</span>

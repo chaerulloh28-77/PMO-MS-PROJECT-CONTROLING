@@ -50,7 +50,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               />
               <span className="font-medium">{isSaving ? 'Menyimpan...' : 'Auto-save Aktif'}</span>
               <span className="text-slate-600">•</span>
-              <span className="text-slate-400 font-mono font-semibold">{projects.length} Proyek</span>
+              <span className="text-slate-400 font-mono font-semibold">{projects.length} Project</span>
             </div>
 
             {/* Quick Add Project */}
@@ -61,7 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               title="Tambah Project Baru"
             >
               <PlusCircle className="w-4 h-4" />
-              <span className="hidden sm:inline">Proyek Baru</span>
+              <span className="hidden sm:inline">Project Baru</span>
             </button>
 
             {/* Export to Excel */}

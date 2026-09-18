@@ -136,7 +136,7 @@ export const PmoReportTab: React.FC<PmoReportTabProps> = ({
           type="button"
           onClick={handleBack}
           className="inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer active:scale-95 shadow-2xs"
-          title="Kembali ke Daftar Proyek"
+          title="Kembali ke Daftar Project"
         >
           <ArrowLeft className="w-4 h-4 text-slate-300" />
           <span>Kembali ke Daftar</span>
@@ -145,6 +145,11 @@ export const PmoReportTab: React.FC<PmoReportTabProps> = ({
         <div className="flex items-center space-x-2.5 text-xs">
           <span className="hidden md:inline text-slate-400">Laporan PMO:</span>
           <span className="font-bold text-slate-100 max-w-xs truncate">{activeProject.name}</span>
+          {activeProject.area && (
+            <span className="font-bold text-[11px] text-cyan-300 bg-cyan-950/70 px-2 py-0.5 rounded-md border border-cyan-800">
+              {activeProject.area}
+            </span>
+          )}
           <span className="hidden sm:inline font-mono text-[11px] text-blue-400 bg-blue-950/70 px-2.5 py-0.5 rounded-full border border-blue-800">
             {activeProject.id}
           </span>
@@ -159,7 +164,7 @@ export const PmoReportTab: React.FC<PmoReportTabProps> = ({
                 ? 'bg-emerald-600 text-white ring-2 ring-emerald-400'
                 : 'bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white'
             }`}
-            title="Simpan Laporan PMO Proyek"
+            title="Simpan Laporan PMO Project"
           >
             {isSaved ? (
               <>
@@ -189,7 +194,7 @@ export const PmoReportTab: React.FC<PmoReportTabProps> = ({
         <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center space-x-2">
             <Milestone className="w-4 h-4 text-blue-600" />
-            <span>Alur Milestone Proyek (End-to-End PMO Flow)</span>
+            <span>Alur Milestone Project (End-to-End PMO Flow)</span>
           </span>
           <span className="text-[11px] font-semibold text-slate-500">
             Status Terkini: <strong className="text-slate-800">{activeProject.status}</strong>
@@ -272,6 +277,43 @@ export const PmoReportTab: React.FC<PmoReportTabProps> = ({
                     })
                   }
                   className="w-full bg-slate-50/70 focus:bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 shadow-2xs focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Ditambahkan setelah Release: MR & Project ID */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                  <span>Nomor MR (Material Request)</span>
+                  <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">Setelah Release</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Contoh: MR-2026-JKT-0891"
+                  value={activeProject.pmo.asPlan.mr || ''}
+                  onChange={(e) =>
+                    updatePMO({
+                      asPlan: { ...activeProject.pmo.asPlan, mr: e.target.value },
+                    })
+                  }
+                  className="w-full bg-slate-50/70 focus:bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono font-medium text-slate-900 shadow-2xs focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                  <span>Project ID</span>
+                  <span className="text-[10px] font-semibold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">Setelah Release</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Contoh: PRJ-WBS-902144"
+                  value={activeProject.pmo.asPlan.projectId || ''}
+                  onChange={(e) =>
+                    updatePMO({
+                      asPlan: { ...activeProject.pmo.asPlan, projectId: e.target.value },
+                    })
+                  }
+                  className="w-full bg-slate-50/70 focus:bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-mono font-medium text-slate-900 shadow-2xs focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -637,7 +679,7 @@ export const PmoReportTab: React.FC<PmoReportTabProps> = ({
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900">Cut Over, As Built Drawing & Closing TECO SAP</h3>
-              <p className="text-xs text-slate-500">Tahap akhir migrasi trafik kabel dan administrasi penutupan proyek di SAP</p>
+              <p className="text-xs text-slate-500">Tahap akhir migrasi trafik kabel dan administrasi penutupan project di SAP</p>
             </div>
           </div>
         </div>
@@ -766,7 +808,7 @@ export const PmoReportTab: React.FC<PmoReportTabProps> = ({
         </div>
       </div>
 
-      {/* Remarks / Catatan Proyek */}
+      {/* Remarks / Catatan Project */}
       <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
         <label className="block text-xs font-bold text-slate-800 mb-2">Catatan Khusus / Remarks PMO</label>
         <textarea
@@ -787,7 +829,7 @@ export const PmoReportTab: React.FC<PmoReportTabProps> = ({
             className="inline-flex items-center space-x-2 px-4 py-2.5 text-xs font-bold rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition cursor-pointer active:scale-95 shadow-2xs"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Kembali ke Daftar Proyek</span>
+            <span>Kembali ke Daftar Project</span>
           </button>
           <span className="hidden sm:inline text-xs text-slate-500">
             Terakhir diupdate: <span className="font-semibold text-slate-700">{activeProject.updatedAt || 'Hari ini'}</span>

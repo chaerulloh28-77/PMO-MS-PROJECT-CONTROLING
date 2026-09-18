@@ -1,4 +1,4 @@
-import { Project, FOCableKey, DimensionKey } from '../types';
+import { Project, FOCableKey, DimensionKey, ProjectArea } from '../types';
 
 export const FO_TYPES: FOCableKey[] = [
   '288 GL',
@@ -27,6 +27,27 @@ export const BORING_LABELS = {
   akses: 'Boring Cross Akses (m)',
   jembatan: 'Boring Cross Jembatan ATB (m)',
   sungai: 'Boring Cross Sungai/Kali (m)',
+};
+
+export const AREA_COLORS: Record<string, { badge: string; border: string; bg: string; text: string }> = {
+  'Jabo 1': {
+    badge: 'bg-blue-50 text-blue-700 border-blue-200',
+    border: 'border-blue-400',
+    bg: 'bg-blue-50',
+    text: 'text-blue-700',
+  },
+  'Jabo 2': {
+    badge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    border: 'border-emerald-400',
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-700',
+  },
+  'Jabo 3': {
+    badge: 'bg-amber-50 text-amber-700 border-amber-200',
+    border: 'border-amber-400',
+    bg: 'bg-amber-50',
+    text: 'text-amber-700',
+  },
 };
 
 export const STATUS_COLORS: Record<string, { badge: string; border: string; bg: string; text: string; hex: string }> = {
@@ -65,7 +86,8 @@ export function createNewProject(
   status: Project['status'] = 'Not Yet',
   tanggalSuratDinas = '',
   nomorSuratDinas = '',
-  remarks = ''
+  remarks = '',
+  area: ProjectArea = 'Jabo 1'
 ): Project {
   const emptyPullingFO: Record<FOCableKey, number> = {
     '288 GL': 0,
@@ -91,6 +113,7 @@ export function createNewProject(
   return {
     id: 'PRJ-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(Math.random() * 1000),
     name,
+    area,
     tanggalSuratDinas,
     nomorSuratDinas,
     status,
@@ -114,7 +137,7 @@ export function createNewProject(
       },
     },
     pmo: {
-      asPlan: { request: '', release: '' },
+      asPlan: { request: '', release: '', mr: '', projectId: '' },
       survey: '',
       material: { date: '', submit: false, review: false, approval: false, releaseMR: '' },
       labour: { date: '', submit: false, review: false, approval: false, releaseMR: '' },
@@ -133,6 +156,7 @@ export const INITIAL_PROJECTS: Project[] = [
   {
     id: 'PRJ-SENTUL-01',
     name: 'Relokasi FO Simpang Bukit Sentul Cijayanti',
+    area: 'Jabo 2',
     tanggalSuratDinas: '2026-07-15',
     nomorSuratDinas: '005/318/DPUPR-BOGOR/2026',
     status: 'In Progress',
@@ -187,7 +211,7 @@ export const INITIAL_PROJECTS: Project[] = [
       },
     },
     pmo: {
-      asPlan: { request: '2026-08-01', release: '2026-08-12' },
+      asPlan: { request: '2026-08-01', release: '2026-08-12', mr: 'MR-2026-BOG-041', projectId: 'PRJ-OSP-BOG-019' },
       survey: '2026-08-15',
       material: { date: '2026-08-20', submit: true, review: true, approval: true, releaseMR: '2026-08-25' },
       labour: { date: '2026-08-22', submit: true, review: true, approval: true, releaseMR: '2026-08-28' },
@@ -203,6 +227,7 @@ export const INITIAL_PROJECTS: Project[] = [
   {
     id: 'PRJ-TOLL-02',
     name: 'Daily Progress - Akses Jalan Tol Jagorawi KM 38',
+    area: 'Jabo 1',
     tanggalSuratDinas: '2026-08-10',
     nomorSuratDinas: 'JM/OP-DIR/142/VIII/2026',
     status: 'Not Yet',
@@ -257,7 +282,7 @@ export const INITIAL_PROJECTS: Project[] = [
       },
     },
     pmo: {
-      asPlan: { request: '2026-08-25', release: '2026-09-05' },
+      asPlan: { request: '2026-08-25', release: '2026-09-05', mr: 'MR-2026-JKT-118', projectId: 'PRJ-OSP-JKT-082' },
       survey: '2026-09-10',
       material: { date: '2026-09-12', submit: true, review: false, approval: false, releaseMR: '' },
       labour: { date: '2026-09-14', submit: true, review: false, approval: false, releaseMR: '' },
@@ -273,6 +298,7 @@ export const INITIAL_PROJECTS: Project[] = [
   {
     id: 'PRJ-BSD-03',
     name: 'Ducting & Boring HD Subduct BSD City Boulevard',
+    area: 'Jabo 1',
     tanggalSuratDinas: '2026-04-28',
     nomorSuratDinas: 'BSD/INFRA-DEV/409/IV/2026',
     status: 'Done',
@@ -327,7 +353,7 @@ export const INITIAL_PROJECTS: Project[] = [
       },
     },
     pmo: {
-      asPlan: { request: '2026-05-10', release: '2026-05-22' },
+      asPlan: { request: '2026-05-10', release: '2026-05-22', mr: 'MR-2026-TNG-009', projectId: 'PRJ-OSP-TNG-004' },
       survey: '2026-05-28',
       material: { date: '2026-06-01', submit: true, review: true, approval: true, releaseMR: '2026-06-05' },
       labour: { date: '2026-06-02', submit: true, review: true, approval: true, releaseMR: '2026-06-06' },
@@ -343,6 +369,7 @@ export const INITIAL_PROJECTS: Project[] = [
   {
     id: 'PRJ-CKR-04',
     name: 'FO Feeder Relokasi Cikarang - Jababeka 3',
+    area: 'Jabo 3',
     tanggalSuratDinas: '2026-06-20',
     nomorSuratDinas: 'JBBK-UTIL/612/VI/2026',
     status: 'Pending/Cancel/Hold',
@@ -397,7 +424,7 @@ export const INITIAL_PROJECTS: Project[] = [
       },
     },
     pmo: {
-      asPlan: { request: '2026-07-02', release: '2026-07-15' },
+      asPlan: { request: '2026-07-02', release: '2026-07-15', mr: 'MR-2026-CKR-055', projectId: 'PRJ-OSP-BKS-031' },
       survey: '2026-07-20',
       material: { date: '2026-07-25', submit: true, review: true, approval: false, releaseMR: '' },
       labour: { date: '2026-07-25', submit: true, review: false, approval: false, releaseMR: '' },

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Project, ProjectStatus, TabType } from './types';
+import { Project, ProjectStatus, TabType, ProjectArea } from './types';
 import { INITIAL_PROJECTS, createNewProject } from './data/initialProjects';
 import { exportProjectsToExcel } from './utils/excelExport';
 import { Navbar } from './components/Navbar';
@@ -62,6 +62,7 @@ export default function App() {
 
   const handleCreateProject = (data: {
     name: string;
+    area: ProjectArea;
     tanggalSuratDinas: string;
     nomorSuratDinas: string;
     status: ProjectStatus;
@@ -72,7 +73,8 @@ export default function App() {
       data.status,
       data.tanggalSuratDinas,
       data.nomorSuratDinas,
-      data.remarks
+      data.remarks,
+      data.area
     );
     const updated = [newProj, ...projects];
     saveProjects(updated);

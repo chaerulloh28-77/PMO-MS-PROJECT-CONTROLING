@@ -10,8 +10,9 @@ import {
   ArrowLeft,
   Save,
   CheckCircle2,
+  MapPin,
 } from 'lucide-react';
-import { Project, ProjectStatus } from '../types';
+import { Project, ProjectStatus, ProjectArea, PROJECT_AREAS } from '../types';
 
 interface EditProjectModalProps {
   project: Project | null;
@@ -27,6 +28,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
   onSave,
 }) => {
   const [name, setName] = useState('');
+  const [area, setArea] = useState<ProjectArea>('Jabo 1');
   const [tanggalSuratDinas, setTanggalSuratDinas] = useState('');
   const [nomorSuratDinas, setNomorSuratDinas] = useState('');
   const [status, setStatus] = useState<ProjectStatus>('Not Yet');
@@ -36,6 +38,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
   useEffect(() => {
     if (project) {
       setName(project.name || '');
+      setArea(project.area || 'Jabo 1');
       setTanggalSuratDinas(project.tanggalSuratDinas || '');
       setNomorSuratDinas(project.nomorSuratDinas || '');
       setStatus(project.status || 'Not Yet');
@@ -53,6 +56,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
     const updated: Project = {
       ...project,
       name: name.trim(),
+      area,
       tanggalSuratDinas: tanggalSuratDinas.trim(),
       nomorSuratDinas: nomorSuratDinas.trim(),
       status,
@@ -99,7 +103,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Perbarui identitas, status pipeline, surat dinas, dan catatan
+                Perbarui identitas, area, status pipeline, surat dinas, dan catatan
               </p>
             </div>
           </div>
@@ -123,9 +127,33 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Nama proyek relokasi fiber optic..."
+              placeholder="Nama project relokasi fiber optic..."
               className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 transition shadow-2xs font-medium"
             />
+          </div>
+
+          {/* Area Project */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center space-x-1.5">
+              <MapPin className="w-3.5 h-3.5 text-blue-600" />
+              <span>Area Project</span>
+            </label>
+            <div className="grid grid-cols-3 gap-2.5">
+              {PROJECT_AREAS.map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => setArea(a)}
+                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition cursor-pointer text-center ${
+                    area === a
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  {a}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Tanggal Surat Dinas */}

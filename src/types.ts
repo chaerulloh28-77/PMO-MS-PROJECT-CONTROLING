@@ -37,6 +37,8 @@ export interface PmoData {
   asPlan: {
     request: string;
     release: string;
+    mr?: string;
+    projectId?: string;
   };
   survey: string;
   material: WorkflowTracking;
@@ -67,9 +69,14 @@ export interface PmoData {
   };
 }
 
+export type ProjectArea = 'Jabo 1' | 'Jabo 2' | 'Jabo 3';
+
+export const PROJECT_AREAS: ProjectArea[] = ['Jabo 1', 'Jabo 2', 'Jabo 3'];
+
 export interface Project {
   id: string;
   name: string;
+  area?: ProjectArea;
   tanggalSuratDinas?: string;
   nomorSuratDinas?: string;
   status: ProjectStatus;

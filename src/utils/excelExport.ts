@@ -8,6 +8,7 @@ export function exportProjectsToExcel(projects: Project[]) {
   const listData = projects.map(p => ({
     'ID Project': p.id,
     'Nama Project': p.name,
+    'Area': p.area || 'Jabo 1',
     'Tanggal Surat Dinas': p.tanggalSuratDinas || '-',
     'Nomor Surat Dinas': p.nomorSuratDinas || '-',
     'Status Pipeline': p.status,
@@ -28,6 +29,7 @@ export function exportProjectsToExcel(projects: Project[]) {
     return {
       'ID Project': p.id,
       'Nama Project': p.name,
+      'Area': p.area || 'Jabo 1',
       'Status': p.status,
       'Boring Alur (m)': p.construction.boring.alur || '0',
       'Boring Jalan/Tol (m)': p.construction.boring.jalan || '0',
@@ -59,11 +61,14 @@ export function exportProjectsToExcel(projects: Project[]) {
   const pmoData = projects.map(p => ({
     'ID Project': p.id,
     'Nama Project': p.name,
+    'Area': p.area || 'Jabo 1',
     'Tanggal Surat Dinas': p.tanggalSuratDinas || '-',
     'Nomor Surat Dinas': p.nomorSuratDinas || '-',
     'Status': p.status,
     'As Plan Request': p.pmo.asPlan.request || '-',
     'As Plan Release': p.pmo.asPlan.release || '-',
+    'Nomor MR': p.pmo.asPlan.mr || '-',
+    'Project ID': p.pmo.asPlan.projectId || '-',
     'Tanggal Survey': p.pmo.survey || '-',
     'CW Start': p.pmo.civilWork.start || '-',
     'CW End': p.pmo.civilWork.end || '-',

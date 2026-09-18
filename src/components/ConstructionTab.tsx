@@ -170,7 +170,7 @@ export const ConstructionTab: React.FC<ConstructionTabProps> = ({
           type="button"
           onClick={handleBack}
           className="inline-flex items-center space-x-2 px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer active:scale-95 shadow-2xs"
-          title="Kembali ke Daftar Proyek"
+          title="Kembali ke Daftar Project"
         >
           <ArrowLeft className="w-4 h-4 text-slate-300" />
           <span>Kembali ke Daftar</span>
@@ -179,6 +179,11 @@ export const ConstructionTab: React.FC<ConstructionTabProps> = ({
         <div className="flex items-center space-x-2.5 text-xs">
           <span className="hidden md:inline text-slate-400">Progres Konstruksi:</span>
           <span className="font-bold text-slate-100 max-w-xs truncate">{activeProject.name}</span>
+          {activeProject.area && (
+            <span className="font-bold text-[11px] text-cyan-300 bg-cyan-950/70 px-2 py-0.5 rounded-md border border-cyan-800">
+              {activeProject.area}
+            </span>
+          )}
           <span className="hidden sm:inline font-mono text-[11px] text-blue-400 bg-blue-950/70 px-2.5 py-0.5 rounded-full border border-blue-800">
             {activeProject.id}
           </span>
@@ -677,7 +682,7 @@ export const ConstructionTab: React.FC<ConstructionTabProps> = ({
             className="inline-flex items-center space-x-2 px-4 py-2.5 text-xs font-bold rounded-xl text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition cursor-pointer active:scale-95 shadow-2xs"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Kembali ke Daftar Proyek</span>
+            <span>Kembali ke Daftar Project</span>
           </button>
           <span className="hidden sm:inline text-xs text-slate-500">
             Terakhir diupdate: <span className="font-semibold text-slate-700">{activeProject.updatedAt || 'Hari ini'}</span>

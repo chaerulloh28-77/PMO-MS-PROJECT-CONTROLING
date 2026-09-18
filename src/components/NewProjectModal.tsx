@@ -10,14 +10,16 @@ import {
   Clock,
   ArrowLeft,
   Save,
+  MapPin,
 } from 'lucide-react';
-import { ProjectStatus } from '../types';
+import { ProjectStatus, ProjectArea, PROJECT_AREAS } from '../types';
 
 interface NewProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreateProject: (data: {
     name: string;
+    area: ProjectArea;
     tanggalSuratDinas: string;
     nomorSuratDinas: string;
     status: ProjectStatus;
@@ -35,6 +37,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
   const todayStr = new Date().toISOString().slice(0, 10);
 
   const [name, setName] = useState('');
+  const [area, setArea] = useState<ProjectArea>('Jabo 1');
   const [tanggalSuratDinas, setTanggalSuratDinas] = useState(todayStr);
   const [nomorSuratDinas, setNomorSuratDinas] = useState('');
   const [status, setStatus] = useState<ProjectStatus>('Not Yet');
@@ -49,6 +52,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
 
     onCreateProject({
       name: finalName,
+      area,
       tanggalSuratDinas: tanggalSuratDinas.trim(),
       nomorSuratDinas: nomorSuratDinas.trim(),
       status,
@@ -57,6 +61,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
 
     // Reset
     setName('');
+    setArea('Jabo 1');
     setTanggalSuratDinas(todayStr);
     setNomorSuratDinas('');
     setStatus('Not Yet');
@@ -92,13 +97,14 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
                 Tambah Project Baru
               </h3>
               <p className="text-xs text-slate-400">
-                Input identitas proyek, tanggal surat dinas, dan status
+                Input identitas project, area, tanggal surat dinas, dan status
               </p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"
+            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -127,6 +133,33 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
               placeholder={`Contoh: Relokasi FO Jalan Sudirman KM 5`}
               className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 transition shadow-2xs font-medium"
             />
+          </div>
+
+          {/* Area Project: Jabo 1, Jabo 2, Jabo 3 */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center space-x-1.5">
+              <MapPin className="w-3.5 h-3.5 text-blue-600" />
+              <span>Area Project <span className="text-rose-500">*</span></span>
+            </label>
+            <div className="grid grid-cols-3 gap-2.5">
+              {PROJECT_AREAS.map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => setArea(a)}
+                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition cursor-pointer text-center flex items-center justify-center space-x-1.5 ${
+                    area === a
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  <span>{a}</span>
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1">
+              Pilih wilayah kerja operasional project (Jabo 1, Jabo 2, atau Jabo 3).
+            </p>
           </div>
 
           {/* Tanggal Surat Dinas & Quick Today Button */}
